@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fusion Pod Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* Layout: header + tabs; planner and simulator are scanned tools, the pod (left tube | 3 materials | right tube) is the recurring visual unit */
+/* Layout: header (title, language, save/open) + tabs; the pod (left tube | 3 materials | right tube) is the recurring visual unit */
 :root{
   --bg:#eef1f4; --surface:#ffffff; --raised:#f6f8fa; --ink:#18202a; --muted:#5b6673; --line:#d4dbe2;
   --accent:#0f8f8a; --accent-ink:#ffffff; --gold:#b7791f;
   --good:#1f8a4c; --warn:#b26a00; --bad:#c2352e;
-  --display:"Chakra Petch", "Noto Sans Thai", system-ui, sans-serif;
-  --body:"Noto Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display:"Chakra Petch", "Noto Sans Thai", "Noto Sans SC", system-ui, sans-serif;
+  --body:"Noto Sans Thai", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark){
@@ -33,30 +33,35 @@
 html,body{margin:0}
 body{background:var(--bg); color:var(--ink); font:15px/1.6 var(--body)}
 h1,h2,h3{font-family:var(--display); text-wrap:balance; margin:0; line-height:1.25}
+a{color:var(--accent)}
 .wrap{max-width:1180px; margin:0 auto; padding:20px 16px 48px; display:flex; flex-direction:column; gap:18px}
-header{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px}
+header{display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px}
 header h1{font-size:28px; letter-spacing:.3px}
 header h1 span{color:var(--accent)}
 header p{margin:4px 0 0; color:var(--muted); max-width:70ch}
+.hdr-tools{display:flex; flex-direction:column; gap:8px; align-items:flex-end}
+.toolbar{display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end}
 .tabs{display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid var(--line)}
 .tab{font:600 15px var(--display); background:none; border:0; border-bottom:3px solid transparent; color:var(--muted); padding:8px 14px; cursor:pointer}
 .tab[aria-selected="true"]{color:var(--ink); border-color:var(--accent)}
-.tab:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.tab:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,label.btn:focus-within{outline:2px solid var(--accent); outline-offset:2px}
 .panel{display:none; flex-direction:column; gap:16px}
 .panel.on{display:flex}
 .card{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px}
 .grid2{display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:16px; align-items:start}
-@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+@media (max-width:860px){.grid2{grid-template-columns:1fr} .hdr-tools{align-items:flex-start} .toolbar{justify-content:flex-start}}
 label{display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted)}
-select,input[type=text],input[type=number]{font:inherit; font-size:14px; color:var(--ink); background:var(--raised); border:1px solid var(--line); border-radius:7px; padding:7px 9px; width:100%}
+select,input[type=text],input[type=number],textarea{font:inherit; font-size:14px; color:var(--ink); background:var(--raised); border:1px solid var(--line); border-radius:7px; padding:7px 9px; width:100%}
+textarea{min-height:180px; font-family:ui-monospace, Consolas, monospace; font-size:12px}
 .form{display:flex; flex-direction:column; gap:12px}
 .row{display:flex; gap:8px; flex-wrap:wrap}
 .row>*{flex:1 1 120px}
-.btn{font:600 14px var(--display); border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:8px; padding:8px 14px; cursor:pointer}
+.btn{font:600 14px var(--display); border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:8px; padding:8px 14px; cursor:pointer; display:inline-flex; align-items:center; gap:6px}
 .btn.ghost{background:transparent; color:var(--accent)}
 .btn.sm{padding:4px 10px; font-size:13px}
+.visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 .seg{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
-.seg button{flex:1; font:500 13px var(--body); padding:6px 8px; border:0; background:var(--raised); color:var(--muted); cursor:pointer}
+.seg button{flex:1; font:500 13px var(--body); padding:6px 10px; border:0; background:var(--raised); color:var(--muted); cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink)}
 .note{font-size:13px; color:var(--muted)}
 .warn{border-left:4px solid var(--warn); background:color-mix(in srgb, var(--warn) 10%, transparent); padding:8px 12px; border-radius:6px; font-size:14px}
@@ -64,39 +69,33 @@ select,input[type=text],input[type=number]{font:inherit; font-size:14px; color:v
 .b-good{color:var(--good); border-color:color-mix(in srgb,var(--good) 50%,transparent)}
 .b-mixed{color:var(--warn); border-color:color-mix(in srgb,var(--warn) 50%,transparent)}
 .b-bad{color:var(--bad); border-color:color-mix(in srgb,var(--bad) 50%,transparent)}
-/* pod */
+.toast{font-size:13px; color:var(--good); min-height:1.2em}
 .pod{display:grid; grid-template-columns:1fr 1.25fr 1fr; gap:10px}
 @media (max-width:640px){.pod{grid-template-columns:1fr}}
 .tube{border:1px solid var(--line); border-radius:10px; background:var(--raised); padding:10px; display:flex; flex-direction:column; gap:6px; min-width:0}
 .tube h4{margin:0; font:600 12px var(--display); letter-spacing:.6px; text-transform:uppercase; color:var(--muted)}
 .tube.center{border-style:dashed}
-.chip{border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:6px 8px; font-size:13px; line-height:1.4}
+.chip{border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:6px 8px; font-size:13px; line-height:1.4; overflow-wrap:anywhere}
 .chip b{font-weight:600}
 .chip .t{display:block; color:var(--muted); font-size:12px}
 .chip.empty{color:var(--muted); font-style:italic}
 .chip.anim{border-color:color-mix(in srgb,var(--gold) 55%,transparent)}
-/* results */
 .res{display:flex; flex-direction:column; gap:12px}
-.big{display:flex; flex-wrap:wrap; gap:10px}
-.stat{flex:1 1 150px; border:1px solid var(--line); border-radius:10px; padding:10px 12px; background:var(--raised)}
-.stat .v{font:700 26px var(--display); font-variant-numeric:tabular-nums}
-.stat .k{font-size:12px; color:var(--muted)}
 .bars{display:flex; flex-direction:column; gap:5px}
-.bar{display:grid; grid-template-columns:minmax(110px,190px) 1fr 52px; gap:8px; align-items:center; font-size:13px}
+.bar{display:grid; grid-template-columns:minmax(110px,210px) 1fr 52px; gap:8px; align-items:center; font-size:13px}
+.bar>span:first-child{overflow-wrap:anywhere}
 .bar .track{height:10px; background:var(--line); border-radius:6px; overflow:hidden}
 .bar .fill{height:100%; background:var(--accent); border-radius:6px}
 .bar .fill.none{background:var(--muted)}
 .bar .fill.lock{background:var(--warn)}
 .bar .pct{text-align:right; font-variant-numeric:tabular-nums}
 .slotname{font:600 13px var(--display); margin:6px 0 2px}
-/* sim slots */
 .simpod{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px}
 @media (max-width:1000px){.simpod{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:520px){.simpod{grid-template-columns:1fr}}
 .slot{border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--surface); display:flex; flex-direction:column; gap:8px; min-width:0}
 .slot.parent{border-color:color-mix(in srgb,var(--accent) 60%,var(--line))}
 .slot h4{margin:0; font:600 13px var(--display)}
-/* steps */
 .steps{display:flex; flex-direction:column; gap:14px; counter-reset:st}
 .step{border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:14px; display:flex; flex-direction:column; gap:10px}
 .step h3{font-size:17px; display:flex; gap:10px; align-items:baseline}
@@ -105,13 +104,14 @@ select,input[type=text],input[type=number]{font:inherit; font-size:14px; color:v
 .kpis{display:flex; flex-wrap:wrap; gap:6px}
 .kpi{font-size:13px; padding:3px 10px; border-radius:99px; background:var(--raised); border:1px solid var(--line); font-variant-numeric:tabular-nums}
 .kpi b{color:var(--accent)}
-/* ref table */
 .tablewrap{overflow-x:auto}
 table{border-collapse:collapse; width:100%; font-size:14px}
 th,td{text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top}
 th{font:600 13px var(--display); color:var(--muted); position:sticky; top:0; background:var(--surface)}
-td.num{font-variant-numeric:tabular-nums}
-details summary{cursor:pointer; font:600 14px var(--display)}
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:16px; z-index:10}
+.modal.on{display:flex}
+.modal .card{max-width:640px; width:100%; display:flex; flex-direction:column; gap:10px}
+.sources{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px; font-size:14px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -120,61 +120,58 @@ details summary{cursor:pointer; font:600 14px var(--display)}
   <header>
     <div>
       <h1>Fusion Pod <span>Planner</span></h1>
-      <p>เลือก Deviation, Variant และ Trait ที่ต้องการ แล้วหน้านี้จะวางลำดับการผสมพร้อมคำนวณโอกาสในแต่ละขั้น ใช้แนวคิด "ล็อก trait 100% ก่อน แล้วค่อยไล่ค่า 5/5" จากคลิปของ GTJanne</p>
+      <p data-i18n="lead"></p>
     </div>
-    <span class="badge">ตัวเลขเป็นค่าประมาณจากผู้เล่น ปรับได้ในแท็บ "ตั้งค่า"</span>
+    <div class="hdr-tools">
+      <div class="seg" id="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="th" aria-pressed="false">ไทย</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+      </div>
+      <div class="toolbar">
+        <button class="btn sm" type="button" id="btn-save" data-i18n="save"></button>
+        <label class="btn ghost sm" for="file-in"><span data-i18n="open"></span><input type="file" id="file-in" accept=".json,application/json" class="visually-hidden"></label>
+        <button class="btn ghost sm" type="button" id="btn-paste" data-i18n="paste"></button>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
   </header>
 
   <nav class="tabs" role="tablist">
-    <button class="tab" role="tab" id="t-plan" aria-selected="true" data-p="plan">วางแผนการผสม</button>
-    <button class="tab" role="tab" id="t-sim" aria-selected="false" data-p="sim">เครื่องจำลอง Fusion Pod</button>
-    <button class="tab" role="tab" id="t-ref" aria-selected="false" data-p="ref">รายการ Trait</button>
-    <button class="tab" role="tab" id="t-cfg" aria-selected="false" data-p="cfg">ตั้งค่าและกฎ</button>
+    <button class="tab" role="tab" id="t-plan" aria-selected="true" data-p="plan" data-i18n="tab_plan"></button>
+    <button class="tab" role="tab" id="t-sim" aria-selected="false" data-p="sim" data-i18n="tab_sim"></button>
+    <button class="tab" role="tab" id="t-ref" aria-selected="false" data-p="ref" data-i18n="tab_ref"></button>
+    <button class="tab" role="tab" id="t-cfg" aria-selected="false" data-p="cfg" data-i18n="tab_cfg"></button>
   </nav>
 
-  <!-- PLANNER -->
   <section class="panel on" id="p-plan" role="tabpanel">
     <div class="grid2">
       <div class="card form">
-        <h2 style="font-size:18px">เป้าหมาย</h2>
-        <button class="btn ghost sm" id="pl-preset" type="button" style="align-self:flex-start">ตั้งตามตัวอย่าง: Butterfly Starry Night 4 trait</button>
-        <label for="pl-species">Deviation ที่ต้องการ
-          <select id="pl-species"></select>
-        </label>
-        <label for="pl-variant">Variant (ร่างพิเศษ)
-          <select id="pl-variant"></select>
-        </label>
-        <label for="pl-event">Variant จากอีเวนต์ / Mutagen
+        <h2 style="font-size:18px" data-i18n="goal"></h2>
+        <button class="btn ghost sm" id="pl-preset" type="button" style="align-self:flex-start" data-i18n="preset"></button>
+        <label for="pl-species"><span data-i18n="f_species_t"></span><select id="pl-species"></select></label>
+        <label for="pl-variant"><span data-i18n="f_variant"></span><select id="pl-variant"></select></label>
+        <label for="pl-event"><span data-i18n="f_event"></span>
           <select id="pl-event">
-            <option value="">ไม่ต้องการ</option>
-            <option value="Starfall">Starfall (ใส่ Starfall Mutagen ตอนผสมขั้นสุดท้าย)</option>
-            <option value="Lunar">Lunar (ตามอีเวนต์ Lunar)</option>
-            <option value="Aberrant">Aberrant (แลกด้วย Gravity Crystal)</option>
+            <option value="" data-i18n="none"></option>
+            <option value="Starfall" data-i18n="ev_starfall"></option>
+            <option value="Lunar" data-i18n="ev_lunar"></option>
+            <option value="Aberrant" data-i18n="ev_aberrant"></option>
           </select>
         </label>
-        <label for="pl-general">Trait ทั่วไป (General)
-          <select id="pl-general"></select>
-        </label>
-        <label for="pl-role"><span id="pl-role-label">Trait ประจำสาย</span>
-          <select id="pl-role"></select>
-        </label>
-        <label for="pl-mut">Deviated trait (จากสัตว์ / เฟอร์นิเจอร์)
-          <select id="pl-mut"></select>
-        </label>
-        <label for="pl-stat">Stat trait (เฉพาะเซิร์ฟ SCP)
-          <select id="pl-stat"></select>
-        </label>
+        <label for="pl-general"><span data-i18n="f_general"></span><select id="pl-general"></select></label>
+        <label for="pl-role"><span id="pl-role-label"></span><select id="pl-role"></select></label>
+        <label for="pl-mut"><span data-i18n="f_mut"></span><select id="pl-mut"></select></label>
+        <label for="pl-stat"><span data-i18n="f_stat"></span><select id="pl-stat"></select></label>
         <div>
-          <div class="note" style="margin-bottom:4px">ประเภทเซิร์ฟเวอร์</div>
+          <div class="note" style="margin-bottom:4px" data-i18n="f_server"></div>
           <div class="seg" id="pl-server">
-            <button type="button" data-v="normal" aria-pressed="true">ปกติ (Manibus / Way of Winter ฯลฯ)</button>
+            <button type="button" data-v="normal" aria-pressed="true" data-i18n="srv_normal"></button>
             <button type="button" data-v="scp" aria-pressed="false">SCP</button>
           </div>
         </div>
-        <label for="pl-carrier">ตัวพา trait (carrier) สำหรับรวม trait ก่อนย้ายเข้าเป้าหมาย
-          <select id="pl-carrier"></select>
-        </label>
-        <p class="note" style="margin:0">Carrier ควรเป็นสายเดียวกับเป้าหมายและหาตัว "สะอาด" (ไม่มี trait) ได้ง่าย เช่น Polar Jelly สำหรับ Combat, Electric Eel สำหรับ Territory</p>
+        <label for="pl-carrier"><span data-i18n="f_carrier"></span><select id="pl-carrier"></select></label>
+        <p class="note" style="margin:0" data-i18n="carrier_note"></p>
       </div>
       <div class="res">
         <div class="card" id="pl-summary"></div>
@@ -183,14 +180,13 @@ details summary{cursor:pointer; font:600 14px var(--display)}
     </div>
   </section>
 
-  <!-- SIMULATOR -->
   <section class="panel" id="p-sim" role="tabpanel">
     <div class="card">
       <div class="row" style="align-items:flex-end">
-        <div style="flex:2 1 300px"><h2 style="font-size:18px">จัดวางใน Fusion Pod</h2><p class="note" style="margin:2px 0 0">ช่องซ้าย/ขวา = พ่อแม่ (ต้องมีสิทธิ์ผสมเหลือ 1) ช่องกลาง 3 ช่อง = วัสดุ ซึ่งจะถูกใช้หมดหลังผสม</p></div>
+        <div style="flex:2 1 300px"><h2 style="font-size:18px" data-i18n="sim_h"></h2><p class="note" style="margin:2px 0 0" data-i18n="sim_note"></p></div>
         <div class="row" style="flex:1 1 260px; justify-content:flex-end">
-          <button class="btn ghost sm" id="sim-clear" type="button">ล้างทั้งหมด</button>
-          <button class="btn ghost sm" id="sim-example" type="button">โหลดตัวอย่างจากคลิป</button>
+          <button class="btn ghost sm" id="sim-clear" type="button" data-i18n="clear"></button>
+          <button class="btn ghost sm" id="sim-example" type="button" data-i18n="example"></button>
         </div>
       </div>
     </div>
@@ -198,29 +194,26 @@ details summary{cursor:pointer; font:600 14px var(--display)}
     <div class="card res" id="sim-result"></div>
   </section>
 
-  <!-- REFERENCE -->
   <section class="panel" id="p-ref" role="tabpanel">
     <div class="card form">
       <div class="row">
-        <label for="ref-q" style="flex:2 1 240px">ค้นหา trait
-          <input type="text" id="ref-q" placeholder="เช่น Crack Shot, Mood, DP">
-        </label>
-        <label for="ref-slot">ช่อง
+        <label for="ref-q" style="flex:2 1 240px"><span data-i18n="q"></span><input type="text" id="ref-q" data-i18n-ph="q_ph"></label>
+        <label for="ref-slot"><span data-i18n="slot"></span>
           <select id="ref-slot">
-            <option value="">ทุกช่อง</option>
-            <option value="general">ทั่วไป</option>
-            <option value="role">ประจำสาย</option>
-            <option value="mutation">Deviated</option>
-            <option value="stat">Stat (SCP)</option>
-            <option value="variant">Variant เฉพาะตัว</option>
+            <option value="" data-i18n="all_slots"></option>
+            <option value="general" data-i18n="sl_general"></option>
+            <option value="role" data-i18n="sl_role"></option>
+            <option value="mutation" data-i18n="sl_mutation"></option>
+            <option value="stat" data-i18n="sl_stat"></option>
+            <option value="variant" data-i18n="variant_only"></option>
           </select>
         </label>
-        <label for="ref-kind">ประเภท
+        <label for="ref-kind"><span data-i18n="kind"></span>
           <select id="ref-kind">
-            <option value="">ทั้งหมด</option>
-            <option value="good">ดีล้วน</option>
-            <option value="mixed">มีข้อแลก</option>
-            <option value="bad">ควรกำจัด</option>
+            <option value="" data-i18n="all"></option>
+            <option value="good" data-i18n="kind_good"></option>
+            <option value="mixed" data-i18n="kind_mixed"></option>
+            <option value="bad" data-i18n="kind_bad"></option>
           </select>
         </label>
       </div>
@@ -228,168 +221,358 @@ details summary{cursor:pointer; font:600 14px var(--display)}
     </div>
   </section>
 
-  <!-- CONFIG -->
   <section class="panel" id="p-cfg" role="tabpanel">
     <div class="grid2">
       <div class="card form">
-        <h2 style="font-size:18px">ค่าที่ใช้คำนวณ</h2>
+        <h2 style="font-size:18px" data-i18n="cfg_h"></h2>
         <div class="row">
-          <label for="cfg-base">โอกาสพื้นฐาน trait เดี่ยว (%)<input type="number" id="cfg-base" min="0" max="100"></label>
-          <label for="cfg-step">เพิ่มต่อตัวเปล่า (%)<input type="number" id="cfg-step" min="0" max="50"></label>
-          <label for="cfg-cap">เพดาน (%)<input type="number" id="cfg-cap" min="0" max="100"></label>
+          <label for="cfg-base"><span data-i18n="c_base"></span><input type="number" id="cfg-base" min="0" max="100"></label>
+          <label for="cfg-step"><span data-i18n="c_step"></span><input type="number" id="cfg-step" min="0" max="50"></label>
+          <label for="cfg-cap"><span data-i18n="c_cap"></span><input type="number" id="cfg-cap" min="0" max="100"></label>
         </div>
         <div class="row">
-          <label for="cfg-up">โอกาสค่าเพิ่ม +1 ต่อค่า (%)<input type="number" id="cfg-up" min="0" max="100" step="0.1"></label>
-          <label for="cfg-down">โอกาสค่าลด −1 ต่อค่า (%)<input type="number" id="cfg-down" min="0" max="100" step="0.1"></label>
+          <label for="cfg-up"><span data-i18n="c_up"></span><input type="number" id="cfg-up" min="0" max="100" step="0.1"></label>
+          <label for="cfg-down"><span data-i18n="c_down"></span><input type="number" id="cfg-down" min="0" max="100" step="0.1"></label>
         </div>
-        <label for="cfg-vslot">Variant เฉพาะตัวใช้ช่องไหน
-          <select id="cfg-vslot"><option value="role">ช่องประจำสาย (ตามตัวจริงในภาพ: Variant + Power Rewind 2 อยู่ด้วยกันได้)</option><option value="general">ช่องทั่วไป (ตามคำพูดในคลิป GTJanne)</option></select>
+        <label for="cfg-vslot"><span data-i18n="c_vslot"></span>
+          <select id="cfg-vslot"><option value="role" data-i18n="c_vslot_role"></option><option value="general" data-i18n="c_vslot_gen"></option></select>
         </label>
-        <button class="btn ghost sm" id="cfg-reset" type="button" style="align-self:flex-start">คืนค่าเริ่มต้น</button>
+        <button class="btn ghost sm" id="cfg-reset" type="button" style="align-self:flex-start" data-i18n="reset"></button>
       </div>
-      <div class="card">
-        <h2 style="font-size:18px; margin-bottom:8px">กฎที่หน้านี้ใช้</h2>
+      <div class="card form">
+        <h2 style="font-size:18px" data-i18n="rules_h"></h2>
         <ol style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px">
-          <li><b>สายพันธุ์ลูก:</b> ได้เฉพาะสายพันธุ์ของพ่อหรือแม่ โอกาส = จำนวนตัวสายพันธุ์นั้น (พ่อแม่ + วัสดุ) ÷ จำนวนตัวที่เป็นสายพันธุ์ของพ่อแม่ทั้งหมด วัสดุสายพันธุ์อื่น สัตว์ และเฟอร์นิเจอร์ไม่นับ</li>
-          <li><b>ช่อง trait 4 ช่อง:</b> ทั่วไป, ประจำสาย, Deviated, Stat (SCP) ลูกได้ช่องละไม่เกิน 1</li>
-          <li><b>Variant เฉพาะตัว</b> (เช่น Starry Night ของ Butterfly, Golden ของ Eel) ใช้ช่องที่เลือกไว้ด้านซ้าย ค่าเริ่มต้นคือช่องประจำสาย เพราะมีตัวจริงที่มี Variant + Power Rewind 2 + Moonlight Assault + Crit DMG 3 พร้อมกัน ถ้าลูกไม่ใช่สายพันธุ์นั้น ช่องนั้นจะว่าง จึงใช้ "ล้าง" trait ขยะได้</li>
-          <li><b>Trait ประจำสาย</b> ข้ามสายไม่ได้ Combat ไม่ไปลง Territory/Crafting</li>
-          <li><b>หลาย trait แย่งช่อง:</b> โอกาส = จำนวนแหล่งของ trait นั้น ÷ จำนวนแหล่งทั้งหมดในช่อง</li>
-          <li><b>trait เดียวในช่อง:</b> มี 2 แหล่งขึ้นไป = 100% มีแหล่งเดียว = พื้นฐาน + ค่าเพิ่มต่อ Deviation ที่ไม่มี trait ในช่องนั้น (ไม่เกินเพดาน)</li>
-          <li><b>ค่า Skill/Activity:</b> แต่ละค่าสุ่มจากพ่อหรือแม่ฝั่งละ 50% แล้วมีโอกาส +1/−1 ตามที่ตั้งไว้</li>
+          <li data-i18n-html="r1"></li><li data-i18n-html="r2"></li><li data-i18n-html="r3"></li><li data-i18n-html="r4"></li>
+          <li data-i18n-html="r5"></li><li data-i18n-html="r6"></li><li data-i18n-html="r7"></li>
         </ol>
-        <p class="note">ที่มา: คลิป "THE ULTIMATE 100% TRAIT FUSION GUIDE" ของ GTJanne, บทความสรุปการผสมของ 足長よしお (note.com), Fusion Tracker, วิกิ Daopa และ Fandom ตัวเลขยังไม่ยืนยันจากผู้พัฒนา ให้เทียบกับหน้า preview ในเกมก่อนกดผสมทุกครั้ง</p>
+        <p class="note" style="margin:0" data-i18n="disclaimer"></p>
+        <h3 style="font-size:15px" data-i18n="src_h"></h3>
+        <ul class="sources">
+          <li><a href="https://www.youtube.com/watch?v=lyNM0s2CUIY" target="_blank" rel="noopener">THE ULTIMATE 100% TRAIT FUSION GUIDE! PERFECT 5/5 | Once Human — GTJanne (YouTube)</a></li>
+          <li><a href="https://note.com/elias04201/n/n07ff10ec45cc?hl=en" target="_blank" rel="noopener">[Once Human] Deviations and Fusion: An Overview — 足長よしお (note.com)</a></li>
+          <li><a href="https://fusiontracker.io/" target="_blank" rel="noopener">Once Human Fusion Tracker</a></li>
+          <li><a href="https://gamingwithdaopa.ellatha.com/once-human/deviant-traits/" target="_blank" rel="noopener">Once Human Deviant Traits — Gaming with Daopa</a></li>
+          <li><a href="https://once-human.fandom.com/wiki/Traits" target="_blank" rel="noopener">Traits — Once Human Wiki (Fandom)</a></li>
+        </ul>
       </div>
     </div>
   </section>
 </div>
 
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-h">
+  <div class="card">
+    <h2 style="font-size:18px" id="modal-h"></h2>
+    <p class="note" style="margin:0" id="modal-note"></p>
+    <label for="modal-text" class="visually-hidden">Plan code</label>
+    <textarea id="modal-text" spellcheck="false"></textarea>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost sm" type="button" id="modal-copy" data-i18n="copy" style="flex:0 0 auto"></button>
+      <button class="btn sm" type="button" id="modal-load" data-i18n="load_btn" style="flex:0 0 auto"></button>
+      <button class="btn ghost sm" type="button" id="modal-close" data-i18n="close" style="flex:0 0 auto"></button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ================= DATA ================= */
-const CAT_TH={combat:"Combat",territory:"Territory",crafting:"Crafting"};
-const SLOT_TH={general:"ทั่วไป",role:"ประจำสาย",mutation:"Deviated",stat:"Stat (SCP)"};
-const SLOTS=["general","role","mutation","stat"];
-
-// [name, category, [[variantName, traitName, effect], ...]]
-const SPECIES_RAW=[
- ["Butterfly's Emissary","combat",[["Starry Night","Praise the Moon – Starry Night","กลางคืน Weapon/Status DMG +6% (กลางวันครึ่งหนึ่ง)"],["Glistening Blue","Weakspot Master – Glistening Blue","ยิง weakspot ได้ Secured +1 (CD 3 วิ)"]]],
- ["Lonewolf's Whisper","combat",[["Lunar","Lunar Oracle","Sanity <30%: ฟื้น 1 DP ทุก 8 วิ"]]],
- ["Festering Gel","combat",[["Spring Rose","Praise the Sun – Spring Rose","กลางวัน Healing +20%"],["Marine Star","Starry Sky – Marine Star","รีโหลดแล้วสุ่ม Weapon/Status DMG +5%"],["Lunar","Lunar Oracle","Sanity <30%: ฟื้น 1 DP ทุก 8 วิ"]]],
- ["Pyro Dino","combat",[["Lunar","Lunar Oracle","Sanity <30%: ฟื้น 1 DP ทุก 8 วิ"]]],
- ["By-the-Wind","combat",[["Lunar","Lunar Oracle","Sanity <30%: ฟื้น 1 DP ทุก 8 วิ"]]],
- ["Zeno-Purifier","combat",[["Lunar","Lunar Oracle","Sanity <30%: ฟื้น 1 DP ทุก 8 วิ"]]],
- ["Shattered Maiden","combat",[["Wandering Witch","Wandering Witch","Max DP +10%"]]],
- ["Voodoo Doll","combat",[]],
- ["Polar Jelly","combat",[["Radiant","Radiant Jelly","ร่างเฉพาะ Polar Jelly ใช้ล้าง trait ทั่วไป"]]],
- ["Grumpy Bulb","combat",[]],
- ["Mr. Wish","combat",[]],
- ["Snowsprite","combat",[["Spring's Return","Move More, Live Better","วิ่งแล้วฟื้น 1 DP ทุก 8 วิ"]]],
- ["Mini Wonder","combat",[]],
- ["Mini Feaster","combat",[]],
- ["Dr. Teddy","combat",[]],
- ["Enchanting Void","combat",[]],
- ["Invincible Sun","combat",[]],
- ["Whalepup","combat",[]],
- ["Zapcam","combat",[]],
- ["Electric Eel","territory",[["Golden","Golden Lightning","ร่างเฉพาะ Electric Eel ใช้ล้าง trait ทั่วไป"]]],
- ["The Digby Boy","territory",[["Emerald","Emerald","Energy recovery +10%"],["Fortune Dice","Fortune Dice","Max DP +6%"],["Prism","Voluntary Overtime – Prism","15% ทำงานไม่เสีย Mood"],["Pure Gold","Gilded Oracle – Pure Gold","มีโอกาสได้แร่เพิ่ม"]]],
- ["Fetch-A-Lot Bunny","territory",[["Alice","Woodland Spirit – Alice","มีโอกาสได้พืช Deviated"],["Dark Rebel","Toxicologist – Dark Rebel","10% ได้ Acid"],["Aquarius","Aquarius","Mood recovery +30%"],["Gluttonous Bunny","Gluttonous Bunny","Energy recovery +15%"],["Infrasonic Illusion","Infrasonic Illusion (Bunny)","Max Energy +40%"]]],
- ["Paper Doll","territory",[["Witch's Beloved","Witch's Beloved","Mood recovery +20%"],["Infrasonic Illusion","Infrasonic Illusion (Doll)","Mood recovery +30%"]]],
- ["Logging Beaver","territory",[["Christmas Spirit","Christmas Spirit","Max DP +10%, DP recovery +5%"]]],
- ["Growshroom","territory",[["Extra Large","Optimism – Extra Large","Max Mood +40%"],["Green Touch","Toxicologist – Green Touch","มีโอกาสได้ Acid"]]],
- ["Extradimensional Cat","territory",[["Good Fortune","Optimism – Good Fortune","Max Mood +40%"],["Moon Diamond","Daydreaming – Moon Diamond","ตอนพัก: 20% ให้ตัวอื่น +15 DP"],["Moonlit Jewels","Daydreaming – Moonlit Jewels","ตอนพัก: 20% ให้ตัวอื่น +15 DP"],["Heavy Ginger","Water Dormancy – Heavy Ginger","พักใกล้น้ำ: Mood recovery +35%"]]],
- ["Nutcracker","territory",[["Elegant Purple","Imperfect Endless Motion – Elegant Purple","20% ทำงานไม่เสีย DP"],["Silver Gentleman","Sweet Talk – Silver Gentleman","ตอนพัก: 25% ให้ตัวอื่น +10 Mood"],["Ocean Blue","Stardust Affinity – Ocean Blue","เขต Pollution: 30% ไม่เสีย Mood"],["Deep Purple","Feisty Vitality – Deep Purple","Mood recovery +30%"],["Purple","Power Rewind – Purple","Energy recovery +15%"],["Twisted Fairy Tale","Reserved Energy – Twisted Fairy Tale","Max Energy +40"],["Tin Soldier","Stable Energy – Tin Soldier","Max Energy +35"],["Golden Era","Stable Vitality – Golden Era","Max Mood +35"],["Lights and Shadows","Workaholic – Lights and Shadows","ช่วงเผา Energy/Mood ยาวขึ้น 20%"],["Diamond Duke","Diamond Duke","เขต Pollution: 5% ไม่เสีย Energy"]]],
- ["Buzzy Bee","territory",[["Pumpkin Lantern","Pumpkin Lantern","Max DP +10%"],["Radiant Flourish","Radiant Flourish","Max Mood +8%"]]],
- ["Lethal Rabbit","territory",[]],
- ["Rain Man","territory",[]],
- ["Chefosaurus Rex","territory",[]],
- ["Flame Essence","territory",[]],
- ["Atomic Lighter","crafting",[]],
- ["Gingerbread House","crafting",[]],
- ["Disco Ball","crafting",[]],
- ["Orb Lightning","crafting",[]],
- ["Space Turner","crafting",[]],
- ["Strange Door","crafting",[]],
- ["Pup Buddy","crafting",[]],
- ["Party Monkey","crafting",[]],
- ["Upper World Spawn","crafting",[]],
- ["Frog the Leaper","crafting",[]],
- ["Atomic Snail","crafting",[]]
-];
-const SP={}; const VARIANT_OWNER={}; const VARIANT_EFFECT={};
-SPECIES_RAW.forEach(([n,c,v])=>{SP[n]={name:n,cat:c,variants:v.map(([vn,t,e])=>({vn,t,e}))}; v.forEach(([vn,t,e])=>{(VARIANT_OWNER[t]=VARIANT_OWNER[t]||[]).push(n); VARIANT_EFFECT[t]=e;});});
-
-// [name, slot, cat(for role), effect, kind]
-const TRAITS_RAW=[
- // general
- ...[15,20,25,30,35].map((v,i)=>["Covert Energy "+(i+1),"general","","Max DP +"+v+"%","good"]),
- ...[15,20,25,30,35].map((v,i)=>["Optimist "+(i+1),"general","","Max Mood +"+v+"%","good"]),
- ...[5,10,15,20,25].map((v,i)=>["Rise and Shine "+(i+1),"general","","Mood recovery +"+v+"%","good"]),
- ["Power Rewind 1","general","","DP recovery +5%","good"],["Power Rewind 2","general","","DP recovery +10%","good"],
- ["Stable Energy","general","","Max Energy +30","good"],["Stable Vitality","general","","Max Activity/Mood +30","good"],
- ...[30,40,50].map((v,i)=>["Cheer Up "+(i+1),"general","","Max Mood +"+v+"% แต่ DP recovery −5%","mixed"]),
- ...[30,40,50].map((v,i)=>["Growing Pains "+(i+1),"general","","Max DP +"+v+"% แต่ Mood recovery −5%","mixed"]),
- ["Upper Hand","general","","Energy หมดแล้วดึง Vitality มาเติม","mixed"],
- ...[5,10,15].map((v,i)=>["Worn-Out "+(i+1),"general","","Max DP −"+v+"%","bad"]),
- ...[5,10,15].map((v,i)=>["Feeling Blue "+(i+1),"general","","Max Activity −"+v+"%","bad"]),
- // combat
- ["Crack Shot","role","combat","Weapon DMG +5%","good"],["Psychic Kid","role","combat","Status DMG +5%","good"],
- ["Heavy and Solid","role","combat","แบกหนัก ลดดาเมจลำตัวสูงสุด 15%","good"],["Lighten Your Mind","role","combat","แบกเบา ลดดาเมจหัวสูงสุด 15%","good"],
- ["Beast of Burden","role","combat","Max Load +8","good"],["Brute Force","role","combat","Max Load +15, ความเร็ว −5%","mixed"],
- ["Power King","role","combat","Max Load +25, ความเร็ว −5%","mixed"],["City Folk","role","combat","Max Load +15 ใน Settlement","good"],
- ["Two-Shift System","role","combat","กลางวัน Load +16, กลางคืนความเร็ว +12%","good"],["Run Fast","role","combat","ความเร็ว +5%","good"],
- ["Street Rascal","role","combat","ความเร็ว +10% ใน Settlement","good"],["Wellbeing","role","combat","Max Stamina +10","good"],
- ["Vegetative Calm","role","combat","Max Stamina +15, ความเร็ว −5%","mixed"],["Durability","role","combat","ใช้ Stamina −5%","good"],
- ["Save Energy","role","combat","ใช้ Stamina −10%, ความเร็ว −5%","mixed"],["Long Distance Runner","role","combat","ใช้ Stamina −20%, ความเร็ว −10%","mixed"],
- ["Stay Indoors","role","combat","ปรับ Stamina 8% ใน Settlement (ทิศทางไม่ยืนยัน)","mixed"],["Sedentary","role","combat","Max Load −8 ใน Settlement","bad"],
- // territory
- ["Anti-Burnout","role","territory","พัก: 20% ให้ตัวอื่น +5 DP","good"],["Dream Wild","role","territory","พัก: 10% ให้ตัวอื่น +10 DP","good"],
- ["Sweet Talk","role","territory","พัก: 20% ให้ตัวอื่น +5 Mood","good"],["A World of Charm","role","territory","พัก: 10% ให้ตัวอื่น +20 Mood","good"],
- ["Living Map","role","territory","รอบผลิต −5%","good"],["Voluntary Overtime","role","territory","10% ทำงานไม่เสีย Mood","good"],
- ["Imperfect Endless Motion","role","territory","10% ทำงานไม่เสีย DP","good"],["Stardust Affinity","role","territory","เขต Pollution: 20% ไม่เสีย Vitality","good"],
- ["Hydrophilic","role","territory","พักใกล้น้ำ Energy recovery +30%","good"],["Water Dormancy","role","territory","พักใกล้น้ำ Vitality recovery +30%","good"],
- ["Gilded Oracle","role","territory","มีโอกาสได้แร่เพิ่ม","good"],["Toxicologist","role","territory","มีโอกาสได้ Acid","good"],
- ["Wild Wood Spirit","role","territory","5% ได้ดอกไม้ Deviant","good"],["OnePlus","role","territory","10% ได้คริสตัลหายาก แต่กลับช้าลง","mixed"],
- ["An Old Hand Knows the Ropes","role","territory","ความเร็วทำงาน +10% แต่เผา Mood/DP เร็วขึ้น","mixed"],
- ["Heartthrob","role","territory","พัก: 10% ให้ +5 Mood แต่ DP ตกอาจลากตัวอื่น","mixed"],
- ["Snooze Aficionado","role","territory","พัก: 10% ให้ +5 DP แต่ Mood ตกอาจลากตัวอื่น","mixed"],
- ["Slacking Off","role","territory","เผา Mood/DP +5%","bad"],["Devoted Laborer","role","territory","เผา Mood/DP +20%","bad"],
- ["Lazy Bones","role","territory","ความเร็วทำงาน −5%","bad"],["Panovision","role","territory","ความเร็วทำงาน −10%","bad"],
- ["Baffling Behavior","role","territory","DP ตก → 10% ตัวอื่นเสีย DP","bad"],["Holding the Team Back","role","territory","Mood ตก → 10% ตัวอื่นเสีย Mood","bad"],
- // crafting
- ["The Last Night","role","crafting","รอบผลิต −15%","good"],["Speed Up","role","crafting","รอบผลิต −10%","good"],["Efficiency First","role","crafting","รอบผลิต −5%","good"],
- ["Buy 1 Get 2","role","crafting","5% ได้เพิ่ม +1","good"],["One More Bottle","role","crafting","2% ได้เพิ่ม +2","good"],
- ["Come As One","role","crafting","+1 ต่อ Territory Deviation ในฐาน","good"],["Mineral Talent","role","crafting","ใกล้ Oil Field: 20% ได้ +1","good"],
- ["Stardust Empowerment","role","crafting","เขต Pollution: 20% ได้ +1","good"],["Little Helper","role","crafting","3% ไม่ใช้ Activity","good"],
- ["Piece of Cake","role","crafting","5% ไม่ใช้ Activity","good"],["Out of Scratch","role","crafting","3% ไม่ใช้ DP","good"],
- ["Medium Cup","role","crafting","คลัง +10%","good"],["Big Cup","role","crafting","คลัง +20%","good"],
- ["Byproduct","role","crafting","Activity >90%: 10% ให้ตัวอื่น +2 DP","good"],
- ["Efficiency Above All","role","crafting","ความเร็ว +20%, คลัง −30%","mixed"],["Collection +1","role","crafting","5% ได้ +2, ความเร็ว −20%","mixed"],
- ["Eureka Moment","role","crafting","1% ได้ +10, รอบผลิต +50%","mixed"],["The Joy of Slacking Off","role","crafting","10% ไม่ใช้ Mood, ความเร็ว −20%","mixed"],
- ["Unplanned Production","role","crafting","10% ไม่ใช้ DP, ความเร็ว −20%","mixed"],["Leftover","role","crafting","10% ให้ตัวอื่น +1 DP, คลัง −20%","mixed"],
- ["Unhinged Production","role","crafting","Activity <20%: ดูด DP ตัวอื่นแลก +2 ชิ้น","mixed"],
- ["Clumsy","role","crafting","มีโอกาสผลผลิต −1","bad"],["Lazy","role","crafting","ความเร็ว −10%","bad"],
- ["No Such Thing As a Small Cup","role","crafting","คลัง −10%","bad"],["Smooth Sheep Rustler","role","crafting","Activity <20%: ดูด 5 DP จากตัวอื่น","bad"],
- // mutation
- ["Moonlight Assault","mutation","","กลางคืน DP และ Mood ฟื้นเร็วขึ้น 15%","good"],
- ["Nightmare Waters","mutation","","ฐานใกล้น้ำ: มีโอกาสได้ปลาเพิ่ม","good"],
- ["Foul Symbiosis","mutation","","เขต Pollution: 10% ได้ Acid +1","good"],
- ["Knights of the Round Table","mutation","","Defense +5%, ลดการใช้ DP เมื่อโดนตี","good"],
- ["Power Play","mutation","","ผลยังไม่ยืนยัน","good"],
- ["Capybara trait","mutation","","ผู้เล่นฟื้น Sanity 10% เมื่อกลับฐาน (ชื่อจริงยังไม่ยืนยัน)","good"],
- ...["Brute Force Rules","Clean and Hygienic","Extra Load","Feline Creatures","Herbivore","Master of Temperatures","Mind Massage","Music Resonance","Neon Flicker","Polar Beast","Pollution Adaptation","Precision Moment","Top Grunt","Warm Flame"].map(n=>[n,"mutation","","ยังไม่มีข้อมูลผล ดูในหน้า preview","good"]),
- // stat (SCP)
- ["Crit DMG 1","stat","","Crit DMG เพิ่มเมื่อเรียกใช้ใน SCP","good"],["Crit DMG 2","stat","","Crit DMG เพิ่มเมื่อเรียกใช้ใน SCP","good"],["Crit DMG 3","stat","","Crit DMG +64% เมื่อเรียกใช้ใน SCP","good"],
- ["Attack Percentage 1","stat","","ค่าโจมตี % (SCP เท่านั้น)","good"],["Attack Percentage 2","stat","","ค่าโจมตี % (SCP เท่านั้น)","good"],["Attack Percentage 3","stat","","ค่าโจมตี % (SCP เท่านั้น)","good"]
-];
-const TR={}; TRAITS_RAW.forEach(([n,s,c,e,k])=>TR[n]={name:n,slot:s,cat:c,effect:e,kind:k});
-
-// materials: animals/furniture -> mutation trait
-const MATERIALS={
- animal:{"Wolf (หมาป่า)":"Moonlight Assault","Crocodile (จระเข้)":"Nightmare Waters","Boar (หมูป่า)":"Foul Symbiosis","Bear (หมี)":"Power Play","Capybara (คาปิบาร่า)":"Capybara trait"},
- furn:{"Diner Table (โต๊ะ)":"Knights of the Round Table","American Long Table (โต๊ะยาว)":"Knights of the Round Table"}
+/* ================= I18N ================= */
+const LANGS=["en","th","zh"];
+let LANG="en"; try{const s=localStorage.getItem("fp-lang"); if(LANGS.includes(s)) LANG=s;}catch(e){}
+const LI=()=>LANGS.indexOf(LANG);
+const tx=a=>Array.isArray(a)?(a[LI()]||a[0]):a;
+const S={
+ lead:["Pick a Deviation, variant and traits. The planner lays out each fusion step and calculates its odds: lock traits at 100% first, chase a 5/5 rating last.","เลือก Deviation, Variant และ Trait ที่ต้องการ แล้วหน้านี้จะวางลำดับการผสมพร้อมคำนวณโอกาสในแต่ละขั้น โดยล็อก trait ให้ได้ 100% ก่อนแล้วค่อยไล่ค่า 5/5","选择想要的异常物、变体和特性，本页会列出每一步融合并计算成功率：先把特性锁定到100%，最后再追求5/5评级。"],
+ save:["Save plan to file","บันทึกแผนเป็นไฟล์","保存规划为文件"],
+ open:["Open plan file","เปิดไฟล์แผน","打开规划文件"],
+ paste:["Paste plan code","วางโค้ดแผน","粘贴规划代码"],
+ copy:["Copy","คัดลอก","复制"],
+ load_btn:["Load plan","เปิดแผน","载入规划"],
+ close:["Close","ปิด","关闭"],
+ saved:["Saved {f}","บันทึก {f} แล้ว","已保存 {f}"],
+ copied:["Plan code copied","คัดลอกโค้ดแผนแล้ว","已复制规划代码"],
+ loaded:["Plan loaded","เปิดแผนแล้ว","已载入规划"],
+ load_err:["That isn't a Fusion Pod Planner plan. Check that you picked the right file or pasted the whole code.","ไฟล์หรือโค้ดนี้ไม่ใช่แผนของ Fusion Pod Planner ตรวจว่าเลือกไฟล์ถูก หรือวางโค้ดครบทั้งหมด","这不是 Fusion Pod Planner 规划。请确认选对了文件或粘贴了完整代码。"],
+ m_save_h:["Plan code","โค้ดแผน","规划代码"],
+ m_save_note:["This viewer blocked the file download. Copy this code into a text file ending in .json, or send it to a friend: they can open it with “Paste plan code”.","ตัวเปิดหน้านี้บล็อกการดาวน์โหลดไฟล์ คัดลอกโค้ดนี้ไปวางในไฟล์ที่ลงท้ายด้วย .json หรือส่งให้เพื่อน แล้วเพื่อนเปิดด้วยปุ่ม “วางโค้ดแผน”","当前查看器阻止了文件下载。请把这段代码复制到以 .json 结尾的文本文件，或直接发给朋友，对方用“粘贴规划代码”打开。"],
+ m_paste_h:["Paste plan code","วางโค้ดแผน","粘贴规划代码"],
+ m_paste_note:["Paste the code from a saved plan file, then select Load plan.","วางโค้ดจากไฟล์แผนที่บันทึกไว้ แล้วกด เปิดแผน","粘贴已保存规划文件中的代码，然后点击“载入规划”。"],
+ tab_plan:["Fusion plan","วางแผนการผสม","融合规划"],
+ tab_sim:["Fusion Pod simulator","เครื่องจำลอง Fusion Pod","Fusion Pod 模拟器"],
+ tab_ref:["Trait list","รายการ Trait","特性列表"],
+ tab_cfg:["Settings & rules","ตั้งค่าและกฎ","设置与规则"],
+ goal:["Target","เป้าหมาย","目标"],
+ preset:["Example: Butterfly Starry Night with 4 traits","ตั้งตามตัวอย่าง: Butterfly Starry Night 4 trait","示例：Butterfly Starry Night 4个特性"],
+ f_species_t:["Deviation","Deviation ที่ต้องการ","目标异常物"],
+ f_variant:["Variant","Variant (ร่างพิเศษ)","变体"],
+ f_event:["Event variant / Mutagen","Variant จากอีเวนต์ / Mutagen","活动变体 / 突变剂"],
+ none:["None","ไม่ต้องการ","不需要"],
+ ev_starfall:["Starfall (Starfall Mutagen in the final fusion)","Starfall (ใส่ Starfall Mutagen ตอนผสมขั้นสุดท้าย)","Starfall（最后一次融合放入 Starfall 突变剂）"],
+ ev_lunar:["Lunar (from the Lunar event)","Lunar (ตามอีเวนต์ Lunar)","Lunar（来自 Lunar 活动）"],
+ ev_aberrant:["Aberrant (traded for Gravity Crystals)","Aberrant (แลกด้วย Gravity Crystal)","Aberrant（用重力晶体兑换）"],
+ f_general:["General trait","Trait ทั่วไป","通用特性"],
+ f_role:["{cat} trait","Trait ประจำสาย {cat}","{cat}专属特性"],
+ f_mut:["Deviated trait (from animals / furniture)","Deviated trait (จากสัตว์ / เฟอร์นิเจอร์)","变异特性（来自动物/家具）"],
+ f_stat:["Stat trait (SCP servers only)","Stat trait (เฉพาะเซิร์ฟ SCP)","属性特性（仅限SCP服务器）"],
+ f_server:["Server type","ประเภทเซิร์ฟเวอร์","服务器类型"],
+ srv_normal:["Standard (Manibus, Way of Winter…)","ปกติ (Manibus / Way of Winter ฯลฯ)","普通（Manibus、Way of Winter 等）"],
+ srv_norm_s:["Standard","ปกติ","普通"],
+ f_carrier:["Trait carrier (collects traits before they move to the target)","ตัวพา trait (carrier) สำหรับรวม trait ก่อนย้ายเข้าเป้าหมาย","特性载体（先集中特性再转移到目标）"],
+ carrier_note:["Pick a carrier of the same type whose clean (trait-free) copies are easy to get, such as Polar Jelly for Combat or Electric Eel for Territory.","Carrier ควรเป็นสายเดียวกับเป้าหมายและหาตัว “สะอาด” (ไม่มี trait) ได้ง่าย เช่น Polar Jelly สำหรับ Combat, Electric Eel สำหรับ Territory","载体应与目标同类型，且容易获得无特性的“干净”个体，例如战斗用 Polar Jelly、领地用 Electric Eel。"],
+ carrier_self:[" (the target itself)"," (ตัวเป้าหมายเอง)","（目标本身）"],
+ normal_form:["Standard form","ร่างปกติ","普通形态"],
+ from:["from {x}","จาก {x}","来自 {x}"],
+ unknown_src:["source unknown","ยังไม่รู้วัสดุ","来源未知"],
+ target_traits:["Target traits:","Trait เป้าหมาย:","目标特性："],
+ not_set:["not set","ไม่ระบุ","未指定"],
+ k_steps:["Steps","จำนวนขั้น","步骤数"],
+ k_carrier:["Carrier","Carrier","载体"],
+ k_server:["Server","เซิร์ฟ","服务器"],
+ sum_note:["Each step shows the pod layout and its odds. Use “Open in simulator” to swap in the Deviations you actually have, such as ones carrying junk traits, and see the new odds.","แต่ละขั้นแสดงวิธีวางในเครื่องและโอกาสที่คำนวณได้ กด “เปิดในเครื่องจำลอง” เพื่อเปลี่ยนเป็นตัวที่มีอยู่จริง เช่นตัวที่ติด trait ขยะ แล้วดูโอกาสใหม่","每一步都显示放置方式和成功率。点击“在模拟器中打开”可换成你实际拥有的异常物（例如带垃圾特性的），查看新的概率。"],
+ k_get:["Get {s}:","ได้ {s}:","得到 {s}："],
+ k_all:["Species + all traits:","ได้สายพันธุ์ + trait ครบ:","物种+全部特性："],
+ k_55:["5/5 (estimate):","ได้ 5/5 (ประมาณ):","5/5（估算）："],
+ k_tries:["~{n} tries on average","ลองเฉลี่ย ~{n} ครั้ง","平均约 {n} 次"],
+ open_sim:["Open in simulator","เปิดในเครื่องจำลอง","在模拟器中打开"],
+ w_clash:["Under the current rule the variant “{v}” uses the {slot} slot, so it can't sit alongside {x}. This plan keeps the variant and drops {x}. You can change the rule in Settings.","ตามกฎที่ตั้งไว้ Variant “{v}” ใช้ช่อง{slot} จึงมี {x} พร้อมกันไม่ได้ หน้านี้จะวางแผนให้ได้ Variant และตัด {x} ออก (เปลี่ยนกฎได้ในแท็บตั้งค่า)","按当前规则，变体“{v}”占用{slot}栏位，不能与 {x} 共存。本规划保留变体并去掉 {x}（可在“设置”中更改规则）。"],
+ w_mut:["No known animal or furniture gives {t}. Try materials one at a time in the in-game preview. Steps that need this trait assume you already have one Deviation carrying it.","ยังไม่รู้ว่าสัตว์หรือเฟอร์นิเจอร์ชิ้นไหนให้ {t} ให้ลองใส่วัสดุทีละชิ้นในหน้า preview ของเกม ขั้นที่ใช้ trait นี้จะถือว่าคุณมี Deviation ที่มี trait นี้อยู่แล้ว 1 ตัว","尚不清楚哪种动物或家具提供 {t}。请在游戏预览中逐个尝试材料。需要该特性的步骤假定你已有1只带此特性的异常物。"],
+ w_star:["Starfall Mutagen fusion only works on SCP servers during the event. On standard servers you need to buy or trade for one.","Starfall Mutagen ผสมได้เฉพาะเซิร์ฟ SCP ช่วงอีเวนต์ ในเซิร์ฟปกติต้องซื้อหรือแลกจากตลาด","Starfall 突变剂融合仅在活动期间的SCP服务器可用；普通服务器需要购买或交易。"],
+ s_mat_t:["Put {t} on {c}","ใส่ {t} ลงตัว {c}","把 {t} 放到 {c} 上"],
+ s_mat_w:["Put 2× {m} in the middle. The trait then has 2 sources and no competitor, so it lands 100%. Run it twice to get 2 copies.","ใส่ {m} 2 ชิ้นตรงกลาง trait นี้จะมี 2 แหล่งและไม่มีคู่แข่ง จึงติด 100% ทำ 2 รอบเพื่อให้ได้ 2 ตัว (ไว้ใช้เป็นสำเนา)","在中间放入2个{m}。该特性有2个来源且无竞争，因此100%继承。做两次，得到2个（作为副本）。"],
+ s_src_t:["Move {t} onto {c}","ย้าย {t} มาไว้บน {c}","把 {t} 转移到 {c}"],
+ s_src_role:["Farm a {cat} Deviation that carries {t} (type traits can't cross types)","ฟาร์ม Deviation สาย {cat} ที่ติด {t} (trait ประจำสายข้ามสายไม่ได้)","刷一只带 {t} 的{cat}异常物（类型专属特性不能跨类型）"],
+ s_src_stat:["Find a Deviation on an SCP server that carries {t}","หา Deviation ในเซิร์ฟ SCP ที่ติด {t}","在SCP服务器找一只带 {t} 的异常物"],
+ s_src_gen:["Find any Deviation that carries {t}","หา Deviation ตัวใดก็ได้ที่ติด {t}","找任意一只带 {t} 的异常物"],
+ s_src_w:["{src}, then fuse it with a clean {c}. Put 3 clean {c} in the middle to push species and trait odds to the cap. Repeat until you have 2.","{src} แล้วผสมกับ {c} สะอาด ใส่ {c} สะอาด 3 ตัวตรงกลางเพื่อดันสายพันธุ์และ trait ขึ้นเพดาน ทำซ้ำจนได้ 2 ตัว","{src}，然后与干净的 {c} 融合。中间放3只干净的 {c}，把物种和特性概率推到上限。重复直到得到2只。"],
+ s_merge_t:["Combine all traits on one {c}","รวม trait ทั้งหมดไว้บน {c} ตัวเดียว","把所有特性集中到一只 {c} 上"],
+ s_merge_w:["Use 2 of each trait group (left/right tube plus a copy in the middle). Every trait then has 2 sources and lands 100%. Only use clean copies: an old trait in the same slot lowers the odds.","ใส่ตัวที่มี trait กลุ่มละ 2 ตัว (หลอดซ้าย/ขวา + สำเนาตรงกลาง) ทุก trait จะมี 2 แหล่งจึงติด 100% ถ้ามี trait เดิมแข่งในช่องเดียวกันโอกาสจะลดลง ให้ใช้ตัวที่สะอาดเท่านั้น","每组特性各用2只（左/右管+中间副本），每个特性都有2个来源，因此100%继承。只用干净个体：同一栏位的旧特性会降低概率。"],
+ s_dup_t:["Clone the trait bundle ({c}) as spares","โคลนตัวรวม trait ({c}) ให้มีสำรอง","复制特性合集（{c}）作为备用"],
+ s_dup_w:["Bundle in the left tube, clean {c} in the right tube and the middle. Each trait has one source, so it only reaches about the cap; getting all of them is the product. Repeat until you have 2–3.","หลอดซ้ายตัวรวม trait หลอดขวาและตรงกลางเป็น {c} สะอาด แต่ละ trait มีแหล่งเดียวจึงติดได้แค่ราวเพดาน โอกาสได้ครบทุกตัวคือผลคูณ ทำซ้ำจนมีอย่างน้อย 2–3 ตัว","左管放特性合集，右管和中间放干净的 {c}。每个特性只有1个来源，只能接近上限；全部继承的概率是各项相乘。重复直到有2–3只。"],
+ s_xfer_t:["Move the whole set into {T}","ย้าย trait ทั้งชุดเข้า {T}","把整套特性转移到 {T}"],
+ s_xfer_w:["Clean {T} in the left tube, the bundle in the right tube. In the middle: 1 bundle copy so every trait has 2 sources, and 2 more {T} to raise the species odds.{v}","{T} สะอาดในหลอดซ้าย ตัวรวม trait ในหลอดขวา ตรงกลางใส่สำเนาตัวรวม trait 1 ตัวเพื่อให้ทุก trait มี 2 แหล่ง และ {T} อีก 2 ตัวเพื่อดันโอกาสสายพันธุ์{v}","左管放干净的 {T}，右管放特性合集。中间放1个合集副本，使每个特性有2个来源，再放2只 {T} 提高物种概率。{v}"],
+ s_xfer_v:[" Use the {T} form for all of them so the variant has 3 sources."," ใช้ร่าง {T} ทั้งหมดเพื่อให้ Variant มี 3 แหล่ง","全部使用 {T} 形态，使变体有3个来源。"],
+ s_var_t:["Get 2+ clean {T}","หา {T} สะอาด 2 ตัวขึ้นไป","准备2只以上干净的 {T}"],
+ s_var_w:["A unique variant only comes from a Deviation already in that form. Put that form in both tubes: the variant has 2 sources and lands 100%.","Variant เฉพาะตัวต้องมาจากตัวที่เป็นร่างนั้นอยู่แล้ว ใส่ร่างนั้นทั้งสองหลอด Variant จะมี 2 แหล่งและติด 100%","专属变体只能来自已经是该形态的个体。两个管都放该形态，变体有2个来源，100%继承。"],
+ s_x5_t:["Raise Activity to x/5","ไล่ค่า Activity เป็น x/5","把活跃评级提升到 x/5"],
+ s_x5_w:["Fully-traited target in the left tube, a clean {T} with Activity 5 in the right tube, and a fully-traited copy in the middle to lock traits at 100%. Repeat if Activity doesn't reach 5.","ตัวเป้าหมายที่ติด trait ครบในหลอดซ้าย {T} สะอาดที่ Activity 5 ในหลอดขวา ตรงกลางใส่สำเนาที่ติด trait ครบเพื่อล็อก trait 100% ถ้า Activity ไม่ขึ้น 5 ให้ทำซ้ำ","左管放全特性目标，右管放活跃5的干净 {T}，中间放全特性副本把特性锁定在100%。活跃没到5就重复。"],
+ s_55_t:["Raise to 5/5","ไล่ค่าเป็น 5/5","提升到 5/5"],
+ s_55_w:["Fully-traited x/5 in the left tube, a clean 5/5 {T} in the right tube, a fully-traited copy in the middle. Lock traits at 100% first, then chase 5/5.","ตัวที่ติด trait ครบและเป็น x/5 ในหลอดซ้าย {T} 5/5 สะอาดในหลอดขวา ตรงกลางเป็นสำเนาที่ติด trait ครบ ล็อก trait ให้ได้ 100% ก่อน แล้วค่อยไล่ค่า 5/5","左管放全特性的 x/5，右管放干净的 5/5 {T}，中间放全特性副本。先把特性锁定到100%，再追求5/5。"],
+ s_ev_t:["Final fusion into {e} {T}","ผสมขั้นสุดท้ายเป็น {e} {T}","最终融合为 {e} {T}"],
+ s_ev_w:["Only use 5/5 + 5/5. Put a fully-traited copy in the middle to lock traits at 100%, and add {m}. Careful: even with traits locked, Skill can still drop to 4 or 3, and the parents lose their fusion chance immediately.","ใช้ 5/5 + 5/5 เท่านั้น ตรงกลางใส่ตัวที่ติด trait ครบเพื่อล็อก 100% และใส่ {m} ระวัง: ถึง trait จะล็อกแล้ว ค่า Skill ยังตกเป็น 4 หรือ 3 ได้ และพ่อแม่จะหมดสิทธิ์ผสมทันที","只用 5/5 + 5/5。中间放全特性副本锁定100%，并放入{m}。注意：即使特性已锁定，技能评级仍可能降到4或3，且父母会立即失去融合次数。"],
+ m_star:["Starfall Mutagen","Starfall Mutagen","Starfall 突变剂"],
+ m_other:["{e} Mutagen / event item","{e} Mutagen / ไอเทมอีเวนต์","{e} 突变剂/活动道具"],
+ lbl_clean:["{x} clean","{x} สะอาด","干净的 {x}"],
+ lbl_with:["{x} with {t}","{x} ที่มี {t}","带 {t} 的 {x}"],
+ lbl_bundle:["{x} trait bundle","{x} ตัวรวม trait","{x} 特性合集"],
+ lbl_copy:[" (copy)"," (สำเนา)","（副本）"],
+ lbl_full:["{x} full traits","{x} trait ครบ","{x} 全特性"],
+ chip_empty:["Empty","ว่าง","空"],
+ chip_gives:["gives {t}","ให้ {t}","提供 {t}"],
+ chip_clean:["No traits (clean)","ไม่มี trait (ตัวสะอาด)","无特性（干净）"],
+ tube_l:["Left tube","หลอดซ้าย","左管"],
+ tube_c:["Middle materials","วัสดุตรงกลาง","中间材料"],
+ tube_r:["Right tube","หลอดขวา","右管"],
+ res_need:["Put a Deviation in both the left and right tubes to see the result.","ใส่ Deviation ทั้งหลอดซ้ายและหลอดขวาเพื่อดูผล","在左管和右管都放入异常物即可查看结果。"],
+ res_species:["Offspring species","สายพันธุ์ลูก","子代物种"],
+ res_traits:["Traits if the offspring is {s}","Trait ถ้าลูกเป็น {s}","若子代为 {s} 的特性"],
+ res_notrait:["No trait","ไม่ได้ trait","无特性"],
+ res_lock:[" → empty (species-locked)"," → ว่าง (ล็อกสายพันธุ์)","→ 空（物种锁定）"],
+ res_rating:["Skill / Activity (estimate)","ค่า Skill / Activity (ประมาณ)","技能/活跃评级（估算）"],
+ sk:["Skill","Skill","技能"], ac:["Activity","Activity","活跃"],
+ got55:["5/5:","ได้ 5/5:","5/5："],
+ sim_h:["Fusion Pod layout","จัดวางใน Fusion Pod","Fusion Pod 布置"],
+ sim_note:["The left and right tubes are the parents (each needs 1 fusion chance left). The 3 middle slots are materials and are used up by the fusion.","ช่องซ้าย/ขวา = พ่อแม่ (ต้องมีสิทธิ์ผสมเหลือ 1) ช่องกลาง 3 ช่อง = วัสดุ ซึ่งจะถูกใช้หมดหลังผสม","左右两管为父母（各需剩余1次融合次数）。中间3格为材料，融合后会被消耗。"],
+ clear:["Clear all","ล้างทั้งหมด","全部清空"],
+ example:["Load example","โหลดตัวอย่าง","载入示例"],
+ sl_L:["Left tube (parent)","หลอดซ้าย (พ่อ/แม่)","左管（父母）"],
+ sl_R:["Right tube (parent)","หลอดขวา (พ่อ/แม่)","右管（父母）"],
+ sl_M:["Material {n}","วัสดุ {n}","材料 {n}"],
+ kind_lbl:["Type","ชนิด","类型"],
+ k_dev:["Deviation","Deviation","异常物"], k_animal:["Animal","สัตว์","动物"], k_furn:["Furniture","เฟอร์นิเจอร์","家具"], k_empty:["Empty","ว่าง","空"],
+ f_species:["Species","สายพันธุ์","物种"], f_cat:["Type","สาย","类型"], f_item:["Item","ชิ้น","物品"],
+ ph_none:["none","ไม่มี","无"],
+ res_h:["Expected result","ผลที่คาดไว้","预期结果"],
+ focus:["Show traits for offspring:","ดู trait ของลูกที่เป็น","查看子代特性："],
+ q:["Search traits","ค้นหา trait","搜索特性"],
+ q_ph:["e.g. Crack Shot, Mood, DP","เช่น Crack Shot, Mood, DP","例如 Crack Shot、心情、异常能量"],
+ slot:["Slot","ช่อง","栏位"], all_slots:["All slots","ทุกช่อง","全部栏位"],
+ variant_only:["Unique variant","Variant เฉพาะตัว","专属变体"],
+ kind:["Kind","ประเภท","类别"], all:["All","ทั้งหมด","全部"],
+ kind_good:["Pure upside","ดีล้วน","纯增益"], kind_mixed:["Has a trade-off","มีข้อแลก","有代价"], kind_bad:["Remove","ควรกำจัด","应清除"],
+ b_good:["Good","ดี","良"], b_mixed:["Trade-off","มีข้อแลก","有代价"], b_bad:["Remove","ควรกำจัด","应清除"],
+ th_trait:["Trait","Trait","特性"], th_slot:["Slot","ช่อง","栏位"], th_eff:["Effect","ผล","效果"], th_kind:["Kind","ประเภท","类别"], th_src:["Source","ได้จาก","来源"],
+ src_any:["Any Deviation","Deviation ทั่วไป","任意异常物"], src_scp:["SCP servers","เซิร์ฟ SCP","SCP服务器"], src_unknown:["Unknown","ยังไม่ทราบ","未知"],
+ src_locked:["Locked to {x}","ล็อกกับ {x}","锁定于 {x}"],
+ variant_slot_lbl:["Variant ({slot} slot)","Variant (ช่อง{slot})","变体（{slot}栏位）"],
+ ref_empty:["No traits match your search.","ไม่พบ trait ที่ตรงกับคำค้น","没有符合搜索的特性。"],
+ sl_general:["General","ทั่วไป","通用"], sl_role:["Type","ประจำสาย","类型专属"], sl_mutation:["Deviated","Deviated","变异"], sl_stat:["Stat (SCP)","Stat (SCP)","属性（SCP）"],
+ cat_combat:["Combat","Combat","战斗"], cat_territory:["Territory","Territory","领地"], cat_crafting:["Crafting","Crafting","制造"],
+ cfg_h:["Calculation values","ค่าที่ใช้คำนวณ","计算参数"],
+ c_base:["Single-trait base chance (%)","โอกาสพื้นฐาน trait เดี่ยว (%)","单一特性基础概率（%）"],
+ c_step:["Added per clean Deviation (%)","เพิ่มต่อตัวเปล่า (%)","每只干净异常物增加（%）"],
+ c_cap:["Cap (%)","เพดาน (%)","上限（%）"],
+ c_up:["Chance a rating goes +1 (%)","โอกาสค่าเพิ่ม +1 ต่อค่า (%)","评级 +1 概率（%）"],
+ c_down:["Chance a rating goes −1 (%)","โอกาสค่าลด −1 ต่อค่า (%)","评级 −1 概率（%）"],
+ c_vslot:["Which slot unique variants use","Variant เฉพาะตัวใช้ช่องไหน","专属变体占用哪个栏位"],
+ c_vslot_role:["Type slot (matches a real Deviation with a variant and Power Rewind 2 together)","ช่องประจำสาย (ตรงกับตัวจริงที่มี Variant + Power Rewind 2 พร้อมกัน)","类型专属栏位（与同时拥有变体和 Power Rewind 2 的实例一致）"],
+ c_vslot_gen:["General slot (as described in the video guide)","ช่องทั่วไป (ตามที่อธิบายในคลิปไกด์)","通用栏位（视频攻略中的说法）"],
+ reset:["Reset to defaults","คืนค่าเริ่มต้น","恢复默认"],
+ rules_h:["Rules this page uses","กฎที่หน้านี้ใช้","本页使用的规则"],
+ r1:["<b>Offspring species:</b> only a parent's species. Odds = Deviations of that species (parents + materials) ÷ all Deviations of the parents' species. Materials of other species, animals and furniture don't count.","<b>สายพันธุ์ลูก:</b> ได้เฉพาะสายพันธุ์ของพ่อหรือแม่ โอกาส = จำนวนตัวสายพันธุ์นั้น (พ่อแม่ + วัสดุ) ÷ จำนวนตัวที่เป็นสายพันธุ์ของพ่อแม่ทั้งหมด วัสดุสายพันธุ์อื่น สัตว์ และเฟอร์นิเจอร์ไม่นับ","<b>子代物种：</b>只能是父母之一的物种。概率 = 该物种数量（父母+材料）÷ 父母物种的总数量。其他物种的材料、动物和家具不计入。"],
+ r2:["<b>4 trait slots:</b> General, Type, Deviated, Stat (SCP). The offspring gets at most 1 per slot.","<b>ช่อง trait 4 ช่อง:</b> ทั่วไป, ประจำสาย, Deviated, Stat (SCP) ลูกได้ช่องละไม่เกิน 1","<b>4个特性栏位：</b>通用、类型专属、变异、属性（SCP）。子代每个栏位最多1个。"],
+ r3:["<b>Unique variants</b> (e.g. Butterfly's Starry Night, the Eel's Golden form) use the slot chosen on the left, the Type slot by default. If the offspring isn't that species, the slot ends up empty, which is how junk traits get cleaned.","<b>Variant เฉพาะตัว</b> (เช่น Starry Night ของ Butterfly, Golden ของ Eel) ใช้ช่องที่เลือกไว้ด้านซ้าย ค่าเริ่มต้นคือช่องประจำสาย ถ้าลูกไม่ใช่สายพันธุ์นั้น ช่องนั้นจะว่าง จึงใช้ “ล้าง” trait ขยะได้","<b>专属变体</b>（如 Butterfly 的 Starry Night、Eel 的 Golden）占用左侧选择的栏位，默认为类型专属栏位。若子代不是该物种，该栏位为空，可借此清除垃圾特性。"],
+ r4:["<b>Type traits</b> never cross types: Combat traits can't land on Territory or Crafting.","<b>Trait ประจำสาย</b> ข้ามสายไม่ได้ Combat ไม่ไปลง Territory/Crafting","<b>类型专属特性</b>不能跨类型：战斗特性不会出现在领地或制造异常物上。"],
+ r5:["<b>Competing traits:</b> odds = sources of that trait ÷ all sources in the slot.","<b>หลาย trait แย่งช่อง:</b> โอกาส = จำนวนแหล่งของ trait นั้น ÷ จำนวนแหล่งทั้งหมดในช่อง","<b>特性竞争：</b>概率 = 该特性来源数 ÷ 该栏位全部来源数。"],
+ r6:["<b>One trait in a slot:</b> 2+ sources = 100%. One source = base + bonus per Deviation with no trait in that slot, up to the cap.","<b>trait เดียวในช่อง:</b> มี 2 แหล่งขึ้นไป = 100% มีแหล่งเดียว = พื้นฐาน + ค่าเพิ่มต่อ Deviation ที่ไม่มี trait ในช่องนั้น (ไม่เกินเพดาน)","<b>栏位只有一个特性：</b>2个以上来源 = 100%。1个来源 = 基础值 + 每只该栏位无特性异常物的加成，不超过上限。"],
+ r7:["<b>Skill/Activity:</b> each comes from either parent (50/50), then may go +1 or −1 at the rates set here.","<b>ค่า Skill/Activity:</b> แต่ละค่าสุ่มจากพ่อหรือแม่ฝั่งละ 50% แล้วมีโอกาส +1/−1 ตามที่ตั้งไว้","<b>技能/活跃评级：</b>各自从父母之一继承（各50%），再按此处设定的概率 +1 或 −1。"],
+ disclaimer:["These numbers aren't confirmed by the developer. Always compare against the in-game preview before fusing.","ตัวเลขยังไม่ยืนยันจากผู้พัฒนา ให้เทียบกับหน้า preview ในเกมก่อนกดผสมทุกครั้ง","这些数值未经开发者确认。融合前请务必与游戏内预览核对。"],
+ src_h:["Sources","ที่มา","来源"]
 };
-const MAT_FOR_TRAIT={}; for(const k of ["animal","furn"]) for(const [n,t] of Object.entries(MATERIALS[k])) if(!MAT_FOR_TRAIT[t]) MAT_FOR_TRAIT[t]={kind:k,name:n};
+function t(k,v){ let s=tx(S[k]||[k]); if(v) for(const [a,b] of Object.entries(v)) s=s.split("{"+a+"}").join(b); return s; }
+const CAT=c=>t("cat_"+c);
+const SLOT_T=s=>t("sl_"+s);
+
+/* ================= DATA ================= */
+const SLOTS=["general","role","mutation","stat"];
+const F={ // effect phrase builders -> [en, th, zh]
+ maxDP:v=>[`Max DP +${v}%`,`Max DP +${v}%`,`最大异常能量 +${v}%`],
+ maxDPm:v=>[`Max DP −${v}%`,`Max DP −${v}%`,`最大异常能量 −${v}%`],
+ maxMood:v=>[`Max Mood +${v}%`,`Max Mood +${v}%`,`最大心情 +${v}%`],
+ moodRec:v=>[`Mood recovery +${v}%`,`Mood ฟื้นเร็วขึ้น ${v}%`,`心情恢复 +${v}%`],
+ dpRec:v=>[`DP recovery +${v}%`,`DP ฟื้นเร็วขึ้น ${v}%`,`异常能量恢复 +${v}%`],
+ enRec:v=>[`Energy recovery +${v}%`,`Energy ฟื้นเร็วขึ้น ${v}%`,`能量恢复 +${v}%`],
+ maxEn:v=>[`Max Energy +${v}`,`Max Energy +${v}`,`最大能量 +${v}`],
+ dpLock:v=>[`Sanity <30%: restores 1 DP every 8s`,`Sanity <30%: ฟื้น 1 DP ทุก 8 วิ`,`理智<30%时每8秒恢复1点异常能量`],
+ cleaner:sp=>[`${sp}-only form; good for cleaning traits`,`ร่างเฉพาะ ${sp} ใช้ล้าง trait ได้ดี`,`${sp} 专属形态，适合清除特性`],
+ restGive:(p,n,what)=>[`Resting: ${p}% chance to give others +${n} ${what}`,`ตอนพัก: ${p}% ให้ตัวอื่น +${n} ${what}`,`休息时${p}%概率使其他异常物 +${n} ${what==="Mood"?"心情":"异常能量"}`],
+ noCost:(p,what)=>[`${p}% chance working costs no ${what}`,`${p}% ทำงานไม่เสีย ${what}`,`${p}%概率工作不消耗${({Mood:"心情",DP:"异常能量",Energy:"能量",Vitality:"活力",Activity:"活跃度"})[what]}`],
+ interval:v=>[`Production interval −${v}%`,`รอบผลิต −${v}%`,`生产间隔 −${v}%`],
+ load:(v,extra)=>[`Max Load +${v}${extra?", move speed −"+extra+"%":""}`,`Max Load +${v}${extra?", ความเร็ว −"+extra+"%":""}`,`最大负重 +${v}${extra?"，移速 −"+extra+"%":""}`],
+ stam:(v,extra)=>[`Stamina use −${v}%${extra?", move speed −"+extra+"%":""}`,`ใช้ Stamina −${v}%${extra?", ความเร็ว −"+extra+"%":""}`,`体力消耗 −${v}%${extra?"，移速 −"+extra+"%":""}`],
+ nodata:()=>["No data yet; check the in-game preview","ยังไม่มีข้อมูลผล ดูในหน้า preview ของเกม","暂无数据，请查看游戏内预览"]
+};
+// [name, category, [[variantName, traitName, effect]]]
+const SPECIES_RAW=[
+ ["Butterfly's Emissary","combat",[["Starry Night","Praise the Moon – Starry Night",["Synced: Weapon/Status DMG +6% at night, half by day","กลางคืน Weapon/Status DMG +6% (กลางวันครึ่งหนึ่ง)","同步时夜晚武器/异常伤害 +6%，白天减半"]],["Glistening Blue","Weakspot Master – Glistening Blue",["Weakspot hits grant +1 extra Secured (3s cooldown)","ยิง weakspot ได้ Secured +1 (CD 3 วิ)","命中弱点额外 +1 层（冷却3秒）"]]]],
+ ["Lonewolf's Whisper","combat",[["Lunar","Lunar Oracle",F.dpLock()]]],
+ ["Festering Gel","combat",[["Spring Rose","Praise the Sun – Spring Rose",["Healing +20% by day, half at night","กลางวัน Healing +20% (กลางคืนครึ่งหนึ่ง)","白天治疗 +20%，夜晚减半"]],["Marine Star","Starry Sky – Marine Star",["Each reload: random Weapon or Status DMG +5%","รีโหลดแล้วสุ่ม Weapon/Status DMG +5%","每次换弹随机武器或异常伤害 +5%"]],["Lunar","Lunar Oracle",F.dpLock()]]],
+ ["Pyro Dino","combat",[["Lunar","Lunar Oracle",F.dpLock()]]],
+ ["By-the-Wind","combat",[["Lunar","Lunar Oracle",F.dpLock()]]],
+ ["Zeno-Purifier","combat",[["Lunar","Lunar Oracle",F.dpLock()]]],
+ ["Shattered Maiden","combat",[["Wandering Witch","Wandering Witch",F.maxDP(10)]]],
+ ["Voodoo Doll","combat",[]],
+ ["Polar Jelly","combat",[["Radiant","Radiant Jelly",F.cleaner("Polar Jelly")]]],
+ ["Grumpy Bulb","combat",[]],["Mr. Wish","combat",[]],
+ ["Snowsprite","combat",[["Spring's Return","Move More, Live Better",["Sprinting restores 1 DP every 8s","วิ่งแล้วฟื้น 1 DP ทุก 8 วิ","冲刺时每8秒恢复1点异常能量"]]]],
+ ["Mini Wonder","combat",[]],["Mini Feaster","combat",[]],["Dr. Teddy","combat",[]],["Enchanting Void","combat",[]],
+ ["Invincible Sun","combat",[]],["Whalepup","combat",[]],["Zapcam","combat",[]],
+ ["Electric Eel","territory",[["Golden","Golden Lightning",F.cleaner("Electric Eel")]]],
+ ["The Digby Boy","territory",[["Emerald","Emerald",F.enRec(10)],["Fortune Dice","Fortune Dice",F.maxDP(6)],["Prism","Voluntary Overtime – Prism",F.noCost(15,"Mood")],["Pure Gold","Gilded Oracle – Pure Gold",["Chance to bring back extra ore","มีโอกาสได้แร่เพิ่ม","有概率带回额外矿石"]]]],
+ ["Fetch-A-Lot Bunny","territory",[["Alice","Woodland Spirit – Alice",["Chance to bring back Deviated plants","มีโอกาสได้พืช Deviated","有概率带回异常植物"]],["Dark Rebel","Toxicologist – Dark Rebel",["10% chance to bring back Acid","10% ได้ Acid","10%概率带回酸液"]],["Aquarius","Aquarius",F.moodRec(30)],["Gluttonous Bunny","Gluttonous Bunny",F.enRec(15)],["Infrasonic Illusion","Infrasonic Illusion (Bunny)",["Max Energy +40%","Max Energy +40%","最大能量 +40%"]]]],
+ ["Paper Doll","territory",[["Witch's Beloved","Witch's Beloved",F.moodRec(20)],["Infrasonic Illusion","Infrasonic Illusion (Doll)",F.moodRec(30)]]],
+ ["Logging Beaver","territory",[["Christmas Spirit","Christmas Spirit",["Max DP +10%, DP recovery +5%","Max DP +10%, DP ฟื้นเร็วขึ้น 5%","最大异常能量 +10%，异常能量恢复 +5%"]]]],
+ ["Growshroom","territory",[["Extra Large","Optimism – Extra Large",F.maxMood(40)],["Green Touch","Toxicologist – Green Touch",["Chance to bring back Acid","มีโอกาสได้ Acid","有概率带回酸液"]]]],
+ ["Extradimensional Cat","territory",[["Good Fortune","Optimism – Good Fortune",F.maxMood(40)],["Moon Diamond","Daydreaming – Moon Diamond",F.restGive(20,15,"DP")],["Moonlit Jewels","Daydreaming – Moonlit Jewels",F.restGive(20,15,"DP")],["Heavy Ginger","Water Dormancy – Heavy Ginger",["Resting near water: Mood recovery +35%","พักใกล้น้ำ: Mood ฟื้นเร็วขึ้น 35%","在水边休息心情恢复 +35%"]]]],
+ ["Nutcracker","territory",[["Elegant Purple","Imperfect Endless Motion – Elegant Purple",F.noCost(20,"DP")],["Silver Gentleman","Sweet Talk – Silver Gentleman",F.restGive(25,10,"Mood")],["Ocean Blue","Stardust Affinity – Ocean Blue",["Pollution zone: 30% chance working costs no Mood","เขต Pollution: 30% ไม่เสีย Mood","污染区30%概率工作不消耗心情"]],["Deep Purple","Feisty Vitality – Deep Purple",F.moodRec(30)],["Purple","Power Rewind – Purple",F.enRec(15)],["Twisted Fairy Tale","Reserved Energy – Twisted Fairy Tale",F.maxEn(40)],["Tin Soldier","Stable Energy – Tin Soldier",F.maxEn(35)],["Golden Era","Stable Vitality – Golden Era",["Max Mood +35","Max Mood +35","最大心情 +35"]],["Lights and Shadows","Workaholic – Lights and Shadows",["Energy/Mood drain interval +20%","ช่วงเผา Energy/Mood ยาวขึ้น 20%","能量/心情消耗间隔 +20%"]],["Diamond Duke","Diamond Duke",["Pollution zone: 5% chance working costs no Energy","เขต Pollution: 5% ไม่เสีย Energy","污染区5%概率工作不消耗能量"]]]],
+ ["Buzzy Bee","territory",[["Pumpkin Lantern","Pumpkin Lantern",F.maxDP(10)],["Radiant Flourish","Radiant Flourish",F.maxMood(8)]]],
+ ["Lethal Rabbit","territory",[]],["Rain Man","territory",[]],["Chefosaurus Rex","territory",[]],["Flame Essence","territory",[]],
+ ["Atomic Lighter","crafting",[]],["Gingerbread House","crafting",[]],["Disco Ball","crafting",[]],["Orb Lightning","crafting",[]],
+ ["Space Turner","crafting",[]],["Strange Door","crafting",[]],["Pup Buddy","crafting",[]],["Party Monkey","crafting",[]],
+ ["Upper World Spawn","crafting",[]],["Frog the Leaper","crafting",[]],["Atomic Snail","crafting",[]]
+];
+const SP={}, VARIANT_OWNER={}, VARIANT_EFFECT={};
+SPECIES_RAW.forEach(([n,c,v])=>{SP[n]={name:n,cat:c,variants:v.map(([vn,tr,e])=>({vn,t:tr,e}))}; v.forEach(([vn,tr,e])=>{(VARIANT_OWNER[tr]=VARIANT_OWNER[tr]||[]).push(n); VARIANT_EFFECT[tr]=e;});});
+
+// [name, slot, cat, kind, effect[en,th,zh]]
+const TRAITS_RAW=[
+ ...[15,20,25,30,35].map((v,i)=>["Covert Energy "+(i+1),"general","","good",F.maxDP(v)]),
+ ...[15,20,25,30,35].map((v,i)=>["Optimist "+(i+1),"general","","good",F.maxMood(v)]),
+ ...[5,10,15,20,25].map((v,i)=>["Rise and Shine "+(i+1),"general","","good",F.moodRec(v)]),
+ ["Power Rewind 1","general","","good",F.dpRec(5)],["Power Rewind 2","general","","good",F.dpRec(10)],
+ ["Stable Energy","general","","good",F.maxEn(30)],["Stable Vitality","general","","good",["Max Activity +30","Max Activity +30","最大活跃度 +30"]],
+ ...[30,40,50].map((v,i)=>["Cheer Up "+(i+1),"general","","mixed",[`Max Mood +${v}%, DP recovery −5%`,`Max Mood +${v}% แต่ DP ฟื้นช้าลง 5%`,`最大心情 +${v}%，异常能量恢复 −5%`]]),
+ ...[30,40,50].map((v,i)=>["Growing Pains "+(i+1),"general","","mixed",[`Max DP +${v}%, Mood recovery −5%`,`Max DP +${v}% แต่ Mood ฟื้นช้าลง 5%`,`最大异常能量 +${v}%，心情恢复 −5%`]]),
+ ["Upper Hand","general","","mixed",["When Energy hits 0, spends Vitality to refill it","Energy หมดแล้วดึง Vitality มาเติม","能量耗尽时消耗活力补充"]],
+ ...[5,10,15].map((v,i)=>["Worn-Out "+(i+1),"general","","bad",F.maxDPm(v)]),
+ ...[5,10,15].map((v,i)=>["Feeling Blue "+(i+1),"general","","bad",[`Max Activity −${v}%`,`Max Activity −${v}%`,`最大活跃度 −${v}%`]]),
+ // combat
+ ["Crack Shot","role","combat","good",["Weapon DMG +5%","Weapon DMG +5%","武器伤害 +5%"]],
+ ["Psychic Kid","role","combat","good",["Status DMG +5%","Status DMG +5%","异常伤害 +5%"]],
+ ["Heavy and Solid","role","combat","good",["High load: up to −15% torso damage taken","แบกหนัก ลดดาเมจลำตัวสูงสุด 15%","负重高时躯干受伤最多 −15%"]],
+ ["Lighten Your Mind","role","combat","good",["Low load: up to −15% head damage taken","แบกเบา ลดดาเมจหัวสูงสุด 15%","负重低时头部受伤最多 −15%"]],
+ ["Beast of Burden","role","combat","good",F.load(8)],["Brute Force","role","combat","mixed",F.load(15,5)],["Power King","role","combat","mixed",F.load(25,5)],
+ ["City Folk","role","combat","good",["Max Load +15 in settlements","Max Load +15 ใน Settlement","据点内最大负重 +15"]],
+ ["Two-Shift System","role","combat","good",["Day: Max Load +16; night: move speed +12%","กลางวัน Load +16, กลางคืนความเร็ว +12%","白天最大负重 +16，夜晚移速 +12%"]],
+ ["Run Fast","role","combat","good",["Move speed +5%","ความเร็ว +5%","移速 +5%"]],
+ ["Street Rascal","role","combat","good",["Move speed +10% in settlements","ความเร็ว +10% ใน Settlement","据点内移速 +10%"]],
+ ["Wellbeing","role","combat","good",["Max Stamina +10","Max Stamina +10","最大体力 +10"]],
+ ["Vegetative Calm","role","combat","mixed",["Max Stamina +15, move speed −5%","Max Stamina +15, ความเร็ว −5%","最大体力 +15，移速 −5%"]],
+ ["Durability","role","combat","good",F.stam(5)],["Save Energy","role","combat","mixed",F.stam(10,5)],["Long Distance Runner","role","combat","mixed",F.stam(20,10)],
+ ["Stay Indoors","role","combat","mixed",["Changes Stamina use by 8% in settlements (direction unconfirmed)","ปรับ Stamina 8% ใน Settlement (ทิศทางไม่ยืนยัน)","据点内体力消耗变化8%（方向未确认）"]],
+ ["Sedentary","role","combat","bad",["Max Load −8 in settlements","Max Load −8 ใน Settlement","据点内最大负重 −8"]],
+ // territory
+ ["Anti-Burnout","role","territory","good",F.restGive(20,5,"DP")],["Dream Wild","role","territory","good",F.restGive(10,10,"DP")],
+ ["Sweet Talk","role","territory","good",F.restGive(20,5,"Mood")],["A World of Charm","role","territory","good",F.restGive(10,20,"Mood")],
+ ["Living Map","role","territory","good",F.interval(5)],["Voluntary Overtime","role","territory","good",F.noCost(10,"Mood")],
+ ["Imperfect Endless Motion","role","territory","good",F.noCost(10,"DP")],
+ ["Stardust Affinity","role","territory","good",["Pollution zone: 20% chance working costs no Vitality","เขต Pollution: 20% ไม่เสีย Vitality","污染区20%概率工作不消耗活力"]],
+ ["Hydrophilic","role","territory","good",["Resting near water: Energy recovery +30%","พักใกล้น้ำ Energy ฟื้นเร็วขึ้น 30%","在水边休息能量恢复 +30%"]],
+ ["Water Dormancy","role","territory","good",["Resting near water: Vitality recovery +30%","พักใกล้น้ำ Vitality ฟื้นเร็วขึ้น 30%","在水边休息活力恢复 +30%"]],
+ ["Gilded Oracle","role","territory","good",["Chance to bring back extra ore","มีโอกาสได้แร่เพิ่ม","有概率带回额外矿石"]],
+ ["Toxicologist","role","territory","good",["Chance to bring back Acid","มีโอกาสได้ Acid","有概率带回酸液"]],
+ ["Wild Wood Spirit","role","territory","good",["5% chance to bring back a Deviant flower","5% ได้ดอกไม้ Deviant","5%概率带回异常花"]],
+ ["OnePlus","role","territory","mixed",["10% chance of rare crystals, but returns take longer","10% ได้คริสตัลหายาก แต่กลับช้าลง","10%概率带回稀有晶体，但返回更慢"]],
+ ["An Old Hand Knows the Ropes","role","territory","mixed",["Work speed +10%, but burns Mood/DP faster","ความเร็วทำงาน +10% แต่เผา Mood/DP เร็วขึ้น","工作速度 +10%，但心情/异常能量消耗更快"]],
+ ["Heartthrob","role","territory","mixed",["Resting: 10% chance to give others +5 Mood; its DP drops can drag others","พัก: 10% ให้ +5 Mood แต่ DP ตกอาจลากตัวอื่น","休息时10%使其他 +5 心情；其异常能量下降可能拖累其他"]],
+ ["Snooze Aficionado","role","territory","mixed",["Resting: 10% chance to give others +5 DP; its Mood drops can drag others","พัก: 10% ให้ +5 DP แต่ Mood ตกอาจลากตัวอื่น","休息时10%使其他 +5 异常能量；其心情下降可能拖累其他"]],
+ ["Slacking Off","role","territory","bad",["Burns Mood/DP 5% faster","เผา Mood/DP +5%","心情/异常能量消耗 +5%"]],
+ ["Devoted Laborer","role","territory","bad",["Burns Mood/DP 20% faster","เผา Mood/DP +20%","心情/异常能量消耗 +20%"]],
+ ["Lazy Bones","role","territory","bad",["Work speed −5%","ความเร็วทำงาน −5%","工作速度 −5%"]],
+ ["Panovision","role","territory","bad",["Work speed −10%","ความเร็วทำงาน −10%","工作速度 −10%"]],
+ ["Baffling Behavior","role","territory","bad",["When its DP drops, 10% chance others lose DP too","DP ตก → 10% ตัวอื่นเสีย DP","其异常能量下降时10%概率其他也下降"]],
+ ["Holding the Team Back","role","territory","bad",["When its Mood drops, 10% chance others lose Mood too","Mood ตก → 10% ตัวอื่นเสีย Mood","其心情下降时10%概率其他也下降"]],
+ // crafting
+ ["The Last Night","role","crafting","good",F.interval(15)],["Speed Up","role","crafting","good",F.interval(10)],["Efficiency First","role","crafting","good",F.interval(5)],
+ ["Buy 1 Get 2","role","crafting","good",["5% chance of +1 output","5% ได้เพิ่ม +1","5%概率产出 +1"]],
+ ["One More Bottle","role","crafting","good",["2% chance of +2 output","2% ได้เพิ่ม +2","2%概率产出 +2"]],
+ ["Come As One","role","crafting","good",["+1 output per Territory Deviation in the base","+1 ต่อ Territory Deviation ในฐาน","领地内每个领地异常物产出 +1"]],
+ ["Mineral Talent","role","crafting","good",["Near an Oil Field: 20% chance of +1 output","ใกล้ Oil Field: 20% ได้ +1","油田附近20%概率产出 +1"]],
+ ["Stardust Empowerment","role","crafting","good",["Pollution zone: 20% chance of +1 output","เขต Pollution: 20% ได้ +1","污染区20%概率产出 +1"]],
+ ["Little Helper","role","crafting","good",F.noCost(3,"Activity")],["Piece of Cake","role","crafting","good",F.noCost(5,"Activity")],["Out of Scratch","role","crafting","good",F.noCost(3,"DP")],
+ ["Medium Cup","role","crafting","good",["Storage +10%","คลัง +10%","存储 +10%"]],["Big Cup","role","crafting","good",["Storage +20%","คลัง +20%","存储 +20%"]],
+ ["Byproduct","role","crafting","good",["Activity >90%: 10% chance to give others +2 DP","Activity >90%: 10% ให้ตัวอื่น +2 DP","活跃度>90%时10%概率使其他 +2 异常能量"]],
+ ["Efficiency Above All","role","crafting","mixed",["Speed +20%, storage −30%","ความเร็ว +20%, คลัง −30%","速度 +20%，存储 −30%"]],
+ ["Collection +1","role","crafting","mixed",["5% chance of +2 output, speed −20%","5% ได้ +2, ความเร็ว −20%","5%概率产出 +2，速度 −20%"]],
+ ["Eureka Moment","role","crafting","mixed",["1% chance of +10 output, interval +50%","1% ได้ +10, รอบผลิต +50%","1%概率产出 +10，生产间隔 +50%"]],
+ ["The Joy of Slacking Off","role","crafting","mixed",["10% chance to cost no Mood, speed −20%","10% ไม่ใช้ Mood, ความเร็ว −20%","10%概率不消耗心情，速度 −20%"]],
+ ["Unplanned Production","role","crafting","mixed",["10% chance to cost no DP, speed −20%","10% ไม่ใช้ DP, ความเร็ว −20%","10%概率不消耗异常能量，速度 −20%"]],
+ ["Leftover","role","crafting","mixed",["10% chance to give others +1 DP, storage −20%","10% ให้ตัวอื่น +1 DP, คลัง −20%","10%概率使其他 +1 异常能量，存储 −20%"]],
+ ["Unhinged Production","role","crafting","mixed",["Activity <20%: drains others' DP for +2 output","Activity <20%: ดูด DP ตัวอื่นแลก +2 ชิ้น","活跃度<20%时吸取其他异常能量换取产出 +2"]],
+ ["Clumsy","role","crafting","bad",["Chance of −1 output","มีโอกาสผลผลิต −1","有概率产出 −1"]],
+ ["Lazy","role","crafting","bad",["Speed −10%","ความเร็ว −10%","速度 −10%"]],
+ ["No Such Thing As a Small Cup","role","crafting","bad",["Storage −10%","คลัง −10%","存储 −10%"]],
+ ["Smooth Sheep Rustler","role","crafting","bad",["Activity <20%: drains 5 DP from others","Activity <20%: ดูด 5 DP จากตัวอื่น","活跃度<20%时吸取其他5点异常能量"]],
+ // deviated / mutation
+ ["Moonlight Assault","mutation","","good",["At night, DP and Mood recover 15% faster","กลางคืน DP และ Mood ฟื้นเร็วขึ้น 15%","夜晚异常能量和心情恢复 +15%"]],
+ ["Nightmare Waters","mutation","","good",["Base near water: chance of extra fish","ฐานใกล้น้ำ: มีโอกาสได้ปลาเพิ่ม","领地近水时有概率额外产鱼"]],
+ ["Foul Symbiosis","mutation","","good",["Pollution zone: 10% chance of +1 Acid","เขต Pollution: 10% ได้ Acid +1","污染区10%概率额外 +1 酸液"]],
+ ["Knights of the Round Table","mutation","","good",["Defense +5%, uses less DP when hit","Defense +5%, ลดการใช้ DP เมื่อโดนตี","防御 +5%，受击时异常能量消耗降低"]],
+ ["Power Play","mutation","","good",["Effect unconfirmed","ผลยังไม่ยืนยัน","效果未确认"]],
+ ["Capybara trait","mutation","","good",["You regain 10% Sanity on returning to base (real name unconfirmed)","ผู้เล่นฟื้น Sanity 10% เมื่อกลับฐาน (ชื่อจริงยังไม่ยืนยัน)","返回领地时恢复10%理智（正式名称未确认）"]],
+ ...["Brute Force Rules","Clean and Hygienic","Extra Load","Feline Creatures","Herbivore","Master of Temperatures","Mind Massage","Music Resonance","Neon Flicker","Polar Beast","Pollution Adaptation","Precision Moment","Top Grunt","Warm Flame"].map(n=>[n,"mutation","","good",F.nodata()]),
+ // stat (SCP)
+ ["Crit DMG 1","stat","","good",["Crit DMG bonus when summoned on SCP","Crit DMG เพิ่มเมื่อเรียกใช้ใน SCP","在SCP中召唤时暴击伤害提升"]],
+ ["Crit DMG 2","stat","","good",["Crit DMG bonus when summoned on SCP","Crit DMG เพิ่มเมื่อเรียกใช้ใน SCP","在SCP中召唤时暴击伤害提升"]],
+ ["Crit DMG 3","stat","","good",["Crit DMG +64% when summoned on SCP","Crit DMG +64% เมื่อเรียกใช้ใน SCP","在SCP中召唤时暴击伤害 +64%"]],
+ ...[1,2,3].map(i=>["Attack Percentage "+i,"stat","","good",["Attack % bonus (SCP only)","ค่าโจมตี % (SCP เท่านั้น)","攻击百分比加成（仅SCP）"]])
+];
+const TR={}; TRAITS_RAW.forEach(([n,s,c,k,e])=>TR[n]={name:n,slot:s,cat:c,kind:k,effect:e});
+
+const MATERIALS={
+ animal:{"Wolf":{lbl:["Wolf","หมาป่า","狼"],t:"Moonlight Assault"},"Crocodile":{lbl:["Crocodile","จระเข้","鳄鱼"],t:"Nightmare Waters"},"Boar":{lbl:["Boar","หมูป่า","野猪"],t:"Foul Symbiosis"},"Bear":{lbl:["Bear","หมี","熊"],t:"Power Play"},"Capybara":{lbl:["Capybara","คาปิบาร่า","水豚"],t:"Capybara trait"}},
+ furn:{"Diner Table":{lbl:["Diner Table","โต๊ะ Diner","餐桌"],t:"Knights of the Round Table"},"American Long Table":{lbl:["American Long Table","โต๊ะยาว American","美式长桌"],t:"Knights of the Round Table"}}
+};
+const matT=(kind,name)=>(MATERIALS[kind]&&MATERIALS[kind][name])?MATERIALS[kind][name].t:"";
+const matL=(kind,name)=>(MATERIALS[kind]&&MATERIALS[kind][name])?tx(MATERIALS[kind][name].lbl):name;
+const MAT_FOR_TRAIT={}; for(const k of ["animal","furn"]) for(const [n,o] of Object.entries(MATERIALS[k])) if(!MAT_FOR_TRAIT[o.t]) MAT_FOR_TRAIT[o.t]={kind:k,name:n};
 
 /* ================= CONFIG ================= */
 const DEF={base:50,step:10,cap:80,up:9.8,down:2,vslot:"role"};
@@ -401,7 +584,6 @@ function saveCfg(){try{localStorage.setItem("fp-cfg",JSON.stringify(CFG));}catch
 function dev(species,traits={},sk=3,ac=3,label=""){return {kind:"dev",species,traits:{general:"",role:"",mutation:"",stat:"",...traits},sk,ac,label,cat:SP[species]?SP[species].cat:"combat"};}
 function mat(kind,name){return {kind,name};}
 const catOfSpecies=(s,items)=>{ if(SP[s]) return SP[s].cat; const it=(items||[]).find(x=>x.kind==="dev"&&x.species===s); return it?it.cat:"combat"; };
-
 function compute(setup){
   const parents=[setup.L,setup.R].filter(x=>x&&x.kind==="dev"&&x.species);
   const items=[setup.L,setup.R,...setup.M].filter(x=>x&&x.kind!=="empty"&&(x.kind!=="dev"||x.species));
@@ -419,14 +601,14 @@ function slotsFor(s,items){
   for(const slot of SLOTS){
     const counts={}; let clean=0;
     for(const it of items){
-      let t="";
+      let tr="";
       if(it.kind==="dev"){
-        if(slot==="role"){ if(it.cat!==cat) continue; t=it.traits.role; if(t&&TR[t]&&TR[t].cat&&TR[t].cat!==cat) t=""; }
-        else t=it.traits[slot];
-        if(!t){clean++; continue;}
-      } else if(slot==="mutation"){ t=(MATERIALS[it.kind]||{})[it.name]; if(!t) continue; }
+        if(slot==="role"){ if(it.cat!==cat) continue; tr=it.traits.role; if(tr&&TR[tr]&&TR[tr].cat&&TR[tr].cat!==cat) tr=""; }
+        else tr=it.traits[slot];
+        if(!tr){clean++; continue;}
+      } else if(slot==="mutation"){ tr=matT(it.kind,it.name); if(!tr) continue; }
       else continue;
-      counts[t]=(counts[t]||0)+1;
+      counts[tr]=(counts[tr]||0)+1;
     }
     const keys=Object.keys(counts); let dist;
     if(keys.length===0) dist=[{t:"",p:100}];
@@ -446,7 +628,6 @@ function statDist(a,b){
   return out;
 }
 function ratings(A,B){ const sk=statDist(A.sk,B.sk), ac=statDist(A.ac,B.ac); return {sk,ac,p55:(sk[5]||0)*(ac[5]||0)*100}; }
-// probability child = target species with all wanted traits
 function pWant(res,want){
   const sp=res.species.find(x=>x.s===want.species); if(!sp) return 0;
   let p=sp.p/100; const slots=res.per[want.species];
@@ -457,213 +638,185 @@ function pWant(res,want){
 const pct=v=>(v>=99.95?"100":v<0.05?"0":v.toFixed(v<10?1:0))+"%";
 
 /* ================= RENDER HELPERS ================= */
+const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const opt=(v,txt,sel)=>`<option value="${esc(v)}"${sel?" selected":""}>${esc(txt)}</option>`;
 function chipHTML(it){
-  if(!it||it.kind==="empty") return '<div class="chip empty">ว่าง</div>';
-  if(it.kind!=="dev"){ const t=MATERIALS[it.kind][it.name]; return `<div class="chip anim"><b>${esc(it.name)}</b><span class="t">ให้ ${esc(t)}</span></div>`; }
+  if(!it||it.kind==="empty") return `<div class="chip empty">${t("chip_empty")}</div>`;
+  if(it.kind!=="dev") return `<div class="chip anim"><b>${esc(matL(it.kind,it.name))}</b><span class="t">${esc(t("chip_gives",{t:matT(it.kind,it.name)}))}</span></div>`;
   const tr=SLOTS.map(s=>it.traits[s]).filter(Boolean);
-  return `<div class="chip"><b>${esc(it.label||it.species)}</b> <span class="badge">${it.sk}/${it.ac}</span><span class="t">${tr.length?tr.map(esc).join(" · "):"ไม่มี trait (ตัวสะอาด)"}</span></div>`;
+  return `<div class="chip"><b>${esc(it.label||it.species)}</b> <span class="badge">${it.sk}/${it.ac}</span><span class="t">${tr.length?tr.map(esc).join(" · "):t("chip_clean")}</span></div>`;
 }
 function podHTML(setup){
-  return `<div class="pod"><div class="tube"><h4>หลอดซ้าย</h4>${chipHTML(setup.L)}</div>
-  <div class="tube center"><h4>วัสดุตรงกลาง</h4>${[0,1,2].map(i=>chipHTML(setup.M[i])).join("")}</div>
-  <div class="tube"><h4>หลอดขวา</h4>${chipHTML(setup.R)}</div></div>`;
+  return `<div class="pod"><div class="tube"><h4>${t("tube_l")}</h4>${chipHTML(setup.L)}</div>
+  <div class="tube center"><h4>${t("tube_c")}</h4>${[0,1,2].map(i=>chipHTML(setup.M[i])).join("")}</div>
+  <div class="tube"><h4>${t("tube_r")}</h4>${chipHTML(setup.R)}</div></div>`;
 }
-function barsHTML(rows){
-  return `<div class="bars">${rows.map(r=>`<div class="bar"><span>${r.label}</span><div class="track"><div class="fill ${r.cls||""}" style="width:${Math.max(0,Math.min(100,r.p))}%"></div></div><span class="pct">${pct(r.p)}</span></div>`).join("")}</div>`;
-}
+const barsHTML=rows=>`<div class="bars">${rows.map(r=>`<div class="bar"><span>${r.label}</span><div class="track"><div class="fill ${r.cls||""}" style="width:${Math.max(0,Math.min(100,r.p))}%"></div></div><span class="pct">${pct(r.p)}</span></div>`).join("")}</div>`;
 function resultHTML(res,focus){
-  if(!res.valid) return '<p class="note">ใส่ Deviation ทั้งหลอดซ้ายและหลอดขวาเพื่อดูผล</p>';
+  if(!res.valid) return `<p class="note">${t("res_need")}</p>`;
   const s=focus&&res.per[focus]?focus:res.species[0].s;
-  let h=`<div class="slotname">สายพันธุ์ลูก</div>`+barsHTML(res.species.map(x=>({label:esc(x.s),p:x.p})));
-  h+=`<div class="slotname">Trait ถ้าลูกเป็น ${esc(s)}</div>`;
+  let h=`<div class="slotname">${t("res_species")}</div>`+barsHTML(res.species.map(x=>({label:esc(x.s),p:x.p})));
+  h+=`<div class="slotname">${esc(t("res_traits",{s}))}</div>`;
   for(const slot of SLOTS){ const d=res.per[s][slot]; if(d.length===1&&!d[0].t) continue;
-    h+=`<div class="note" style="margin-top:4px">${SLOT_TH[slot]}</div>`+barsHTML(d.map(x=>({label:x.t?esc(x.t)+(x.lock?" → ว่าง (ล็อกสายพันธุ์)":""):"ไม่ได้ trait",p:x.p,cls:x.lock?"lock":(x.t?"":"none")})));
+    h+=`<div class="note" style="margin-top:4px">${SLOT_T(slot)}</div>`+barsHTML(d.map(x=>({label:x.t?esc(x.t)+(x.lock?t("res_lock"):""):t("res_notrait"),p:x.p,cls:x.lock?"lock":(x.t?"":"none")})));
   }
   if(res.rating){ const r=res.rating;
-    h+=`<div class="slotname">ค่า Skill / Activity (ประมาณ)</div><div class="kpis">`+
-      [5,4,3,2,1].filter(k=>r.sk[k]).map(k=>`<span class="kpi">Skill ${k}: <b>${pct(r.sk[k]*100)}</b></span>`).join("")+
-      [5,4,3,2,1].filter(k=>r.ac[k]).map(k=>`<span class="kpi">Activity ${k}: <b>${pct(r.ac[k]*100)}</b></span>`).join("")+
-      `<span class="kpi">ได้ 5/5: <b>${pct(r.p55)}</b></span></div>`; }
+    h+=`<div class="slotname">${t("res_rating")}</div><div class="kpis">`+
+      [5,4,3,2,1].filter(k=>r.sk[k]).map(k=>`<span class="kpi">${t("sk")} ${k}: <b>${pct(r.sk[k]*100)}</b></span>`).join("")+
+      [5,4,3,2,1].filter(k=>r.ac[k]).map(k=>`<span class="kpi">${t("ac")} ${k}: <b>${pct(r.ac[k]*100)}</b></span>`).join("")+
+      `<span class="kpi">${t("got55")} <b>${pct(r.p55)}</b></span></div>`; }
   return h;
 }
+let TOAST_T=0;
+function toast(msg,bad){ const el=$("toast"); el.textContent=msg; el.style.color=bad?"var(--bad)":"var(--good)"; clearTimeout(TOAST_T); TOAST_T=setTimeout(()=>el.textContent="",4000); }
 
 /* ================= PLANNER ================= */
-const $=id=>document.getElementById(id);
 let SERVER="normal";
-function opt(v,t,sel){return `<option value="${esc(v)}"${sel?" selected":""}>${esc(t)}</option>`;}
-function fillPlannerSelects(keep){
-  const prev=keep||{};
-  $("pl-species").innerHTML=["combat","territory","crafting"].map(c=>`<optgroup label="${CAT_TH[c]}">`+Object.values(SP).filter(s=>s.cat===c).map(s=>opt(s.name,s.name,s.name===(prev.species||"Voodoo Doll"))).join("")+"</optgroup>").join("");
+function fillPlannerSelects(keep){ const prev=keep||{};
+  $("pl-species").innerHTML=["combat","territory","crafting"].map(c=>`<optgroup label="${CAT(c)}">`+Object.values(SP).filter(s=>s.cat===c).map(s=>opt(s.name,s.name,s.name===(prev.species||"Voodoo Doll"))).join("")+"</optgroup>").join("");
   syncPlannerDeps(prev);
-}
-function syncPlannerDeps(prev={}){
-  const s=SP[$("pl-species").value]; const cat=s.cat;
-  $("pl-variant").innerHTML=opt("","ร่างปกติ",true)+s.variants.map(v=>opt(v.t,v.vn+" — "+v.e,v.t===prev.variant)).join("");
-  const gen=Object.values(TR).filter(t=>t.slot==="general"&&t.kind!=="bad");
-  $("pl-general").innerHTML=opt("","ไม่ต้องการ")+gen.map(t=>opt(t.name,t.name+" — "+t.effect,t.name===(prev.general??"Power Rewind 2"))).join("");
-  $("pl-role-label").textContent="Trait ประจำสาย "+CAT_TH[cat];
-  const role=Object.values(TR).filter(t=>t.slot==="role"&&t.cat===cat&&t.kind!=="bad");
-  const defRole={combat:"Crack Shot",territory:"Anti-Burnout",crafting:"The Last Night"}[cat];
-  $("pl-role").innerHTML=opt("","ไม่ต้องการ")+role.map(t=>opt(t.name,t.name+" — "+t.effect,t.name===(prev.role??defRole))).join("");
-  const mut=Object.values(TR).filter(t=>t.slot==="mutation");
-  $("pl-mut").innerHTML=opt("","ไม่ต้องการ")+mut.map(t=>opt(t.name,t.name+(MAT_FOR_TRAIT[t.name]?" — จาก "+MAT_FOR_TRAIT[t.name].name:" — ยังไม่รู้วัสดุ"),t.name===(prev.mut??"Moonlight Assault"))).join("");
-  const st=Object.values(TR).filter(t=>t.slot==="stat");
-  $("pl-stat").innerHTML=opt("","ไม่ต้องการ")+st.map(t=>opt(t.name,t.name,t.name===prev.stat)).join("");
-  const carriers=Object.values(SP).filter(x=>x.cat===cat);
-  const defCar=defaultCarrier(cat,s.name);
-  $("pl-carrier").innerHTML=carriers.map(x=>opt(x.name,x.name+(x.name===s.name?" (ตัวเป้าหมายเอง)":""),x.name===(prev.carrier&&SP[prev.carrier]&&SP[prev.carrier].cat===cat?prev.carrier:defCar))).join("");
-  $("pl-stat").disabled=SERVER!=="scp";
 }
 function defaultCarrier(cat,target){
   if(cat==="combat") return SERVER==="scp"?"Polar Jelly":"Grumpy Bulb";
   if(cat==="territory") return SERVER==="scp"?"Electric Eel":"The Digby Boy";
   return target;
 }
+function syncPlannerDeps(prev={}){
+  const s=SP[$("pl-species").value]; const cat=s.cat;
+  $("pl-variant").innerHTML=opt("",t("normal_form"),true)+s.variants.map(v=>opt(v.t,v.vn+" — "+tx(v.e),v.t===prev.variant)).join("");
+  const gen=Object.values(TR).filter(x=>x.slot==="general"&&x.kind!=="bad");
+  $("pl-general").innerHTML=opt("",t("none"))+gen.map(x=>opt(x.name,x.name+" — "+tx(x.effect),x.name===(prev.general??"Power Rewind 2"))).join("");
+  $("pl-role-label").textContent=t("f_role",{cat:CAT(cat)});
+  const role=Object.values(TR).filter(x=>x.slot==="role"&&x.cat===cat&&x.kind!=="bad");
+  const defRole={combat:"Crack Shot",territory:"Anti-Burnout",crafting:"The Last Night"}[cat];
+  $("pl-role").innerHTML=opt("",t("none"))+role.map(x=>opt(x.name,x.name+" — "+tx(x.effect),x.name===(prev.role??defRole))).join("");
+  const mut=Object.values(TR).filter(x=>x.slot==="mutation");
+  $("pl-mut").innerHTML=opt("",t("none"))+mut.map(x=>opt(x.name,x.name+" — "+(MAT_FOR_TRAIT[x.name]?t("from",{x:matL(MAT_FOR_TRAIT[x.name].kind,MAT_FOR_TRAIT[x.name].name)}):t("unknown_src")),x.name===(prev.mut??"Moonlight Assault"))).join("");
+  const st=Object.values(TR).filter(x=>x.slot==="stat");
+  $("pl-stat").innerHTML=opt("",t("none"))+st.map(x=>opt(x.name,x.name+" — "+tx(x.effect),x.name===prev.stat)).join("");
+  const carriers=Object.values(SP).filter(x=>x.cat===cat);
+  const car=prev.carrier&&SP[prev.carrier]&&SP[prev.carrier].cat===cat?prev.carrier:defaultCarrier(cat,s.name);
+  $("pl-carrier").innerHTML=carriers.map(x=>opt(x.name,x.name+(x.name===s.name?t("carrier_self"):""),x.name===car)).join("");
+  $("pl-stat").disabled=SERVER!=="scp";
+  if(prev.event!==undefined) $("pl-event").value=prev.event;
+}
 function readWant(){
   return {species:$("pl-species").value,variant:$("pl-variant").value,event:$("pl-event").value,
     general:$("pl-general").value,role:$("pl-role").value,mut:$("pl-mut").value,stat:SERVER==="scp"?$("pl-stat").value:"",carrier:$("pl-carrier").value};
 }
+function setServer(v){ SERVER=v; $("pl-server").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===v?"true":"false")); }
 function buildPlan(w){
-  const T=w.species, cat=SP[T].cat, C=w.carrier;
-  const steps=[]; const warns=[];
-  const genWant=w.variant||w.general;
-  const VS=CFG.vslot; const clash=w.variant&&(VS==="general"?w.general:w.role);
-  if(clash) warns.push(`ตามกฎที่ตั้งไว้ Variant "${w.variant}" ใช้ช่อง${SLOT_TH[VS]} จึงมี ${clash} พร้อมกันไม่ได้ หน้านี้จะวางแผนให้ได้ Variant และตัด ${clash} ออก (เปลี่ยนกฎได้ในแท็บตั้งค่า)`);
-  if(w.mut&&!MAT_FOR_TRAIT[w.mut]) warns.push(`ยังไม่รู้ว่าสัตว์หรือเฟอร์นิเจอร์ชิ้นไหนให้ ${w.mut} ให้ลองใส่วัสดุทีละชิ้นในหน้า preview ของเกม ขั้นที่ใช้ trait นี้จะถือว่าคุณมี Deviation ที่มี trait นี้อยู่แล้ว 1 ตัว`);
-  if(w.event==="Starfall"&&SERVER!=="scp") warns.push("Starfall Mutagen ผสมได้เฉพาะเซิร์ฟ SCP ช่วงอีเวนต์ ในเซิร์ฟปกติต้องซื้อหรือแลกจากตลาด");
-  // traits that go through the carrier bundle (variant handled separately on T)
+  const T=w.species, cat=SP[T].cat, C=w.carrier, VS=CFG.vslot;
+  const steps=[], warns=[];
+  const clash=w.variant&&(VS==="general"?w.general:w.role);
+  if(clash) warns.push(t("w_clash",{v:w.variant,slot:SLOT_T(VS),x:clash}));
+  if(w.mut&&!MAT_FOR_TRAIT[w.mut]) warns.push(t("w_mut",{t:w.mut}));
+  if(w.event==="Starfall"&&SERVER!=="scp") warns.push(t("w_star"));
   const bundle={general:(w.variant&&VS==="general")?"":w.general,role:(w.variant&&VS==="role")?"":w.role,mutation:w.mut,stat:w.stat};
   const bTraits=Object.entries(bundle).filter(([,v])=>v);
   const tGen=w.variant?{[VS]:w.variant}:{};
   const tLabel=w.variant?T+" ("+SP[T].variants.find(v=>v.t===w.variant).vn+")":T;
-  const cClean=()=>dev(C,{},3,3,C+" สะอาด");
-  const tClean=(sk=3,ac=3,l)=>dev(T,{...tGen},sk,ac,l||tLabel+" สะอาด");
-  let stepSetups=[];
+  const cClean=()=>dev(C,{},3,3,t("lbl_clean",{x:C}));
+  const tClean=(sk=3,ac=3,l)=>dev(T,{...tGen},sk,ac,l||t("lbl_clean",{x:tLabel}));
   const add=(title,why,setup,want,extra)=>{const res=compute(setup); steps.push({title,why,setup,res,want,p:want?pWant(res,want):null,extra});};
-
-  // 1. per-trait acquisition onto carrier
-  for(const [slot,t] of bTraits){
-    const want={species:C,traits:{[slot]:t}};
-    if(slot==="mutation"&&MAT_FOR_TRAIT[t]){
-      const m=MAT_FOR_TRAIT[t];
-      add(`ใส่ ${t} ลงตัว ${C}`,`ใส่ ${m.name} 2 ชิ้นตรงกลาง trait นี้จะมี 2 แหล่งและไม่มีคู่แข่ง จึงติด 100% ทำ 2 รอบเพื่อให้ได้ 2 ตัว (ไว้ใช้เป็นสำเนา)`,
-        {L:cClean(),R:cClean(),M:[mat(m.kind,m.name),mat(m.kind,m.name),{kind:"empty"}]},want);
+  for(const [slot,tr] of bTraits){
+    const want={species:C,traits:{[slot]:tr}};
+    if(slot==="mutation"&&MAT_FOR_TRAIT[tr]){
+      const m=MAT_FOR_TRAIT[tr];
+      add(t("s_mat_t",{t:tr,c:C}),t("s_mat_w",{m:matL(m.kind,m.name)}),{L:cClean(),R:cClean(),M:[mat(m.kind,m.name),mat(m.kind,m.name),{kind:"empty"}]},want);
     } else {
-      const srcSp = slot==="role" ? (cat==="combat"?"Mini Feaster":cat==="territory"?"Electric Eel":"Space Turner") : "Shattered Maiden";
-      const src=SP[srcSp]&&(slot!=="role"||SP[srcSp].cat===cat)?srcSp:C;
-      const srcDev=dev(src,{[slot]:t},3,3,src+" ที่มี "+t);
-      add(`ย้าย ${t} มาไว้บน ${C}`,
-        `${slot==="role"?`ฟาร์ม Deviation สาย ${CAT_TH[cat]} ที่ติด ${t} (trait ประจำสายข้ามสายไม่ได้)`:slot==="stat"?`หา Deviation ในเซิร์ฟ SCP ที่ติด ${t}`:`หา Deviation ตัวใดก็ได้ที่ติด ${t}`} แล้วผสมกับ ${C} สะอาด ใส่ ${C} สะอาด 3 ตัวตรงกลางเพื่อดันสายพันธุ์และ trait ขึ้นเพดาน ทำซ้ำจนได้ 2 ตัว`,
-        {L:srcDev,R:cClean(),M:[cClean(),cClean(),cClean()]},want);
+      const srcSp=slot==="role"?(cat==="combat"?"Mini Feaster":cat==="territory"?"Electric Eel":"Space Turner"):"Shattered Maiden";
+      const src=(slot!=="role"||SP[srcSp].cat===cat)?srcSp:C;
+      const srcTxt=slot==="role"?t("s_src_role",{cat:CAT(cat),t:tr}):slot==="stat"?t("s_src_stat",{t:tr}):t("s_src_gen",{t:tr});
+      add(t("s_src_t",{t:tr,c:C}),t("s_src_w",{src:srcTxt,c:C}),{L:dev(src,{[slot]:tr},3,3,t("lbl_with",{x:src,t:tr})),R:cClean(),M:[cClean(),cClean(),cClean()]},want);
     }
   }
-  // 2. merge bundle on carrier
   if(bTraits.length>=2){
-    const first=bTraits.slice(0,Math.ceil(bTraits.length/2)), second=bTraits.slice(Math.ceil(bTraits.length/2));
+    const half=Math.ceil(bTraits.length/2), first=bTraits.slice(0,half), second=bTraits.slice(half);
     const A=Object.fromEntries(first), B=Object.fromEntries(second);
     const dA=()=>dev(C,A,3,3,C+" + "+first.map(x=>x[1]).join(", ")), dB=()=>dev(C,B,3,3,C+" + "+second.map(x=>x[1]).join(", "));
-    add(`รวม trait ทั้งหมดไว้บน ${C} ตัวเดียว`,
-      `ใส่ตัวที่มี trait กลุ่มละ 2 ตัว (หลอดซ้าย/ขวา + สำเนาตรงกลาง) ทุก trait จะมี 2 แหล่งจึงติด 100% ถ้ามี trait เดิมแข่งในช่องเดียวกันโอกาสจะลดลง ให้ใช้ตัวที่สะอาดเท่านั้น`,
-      {L:dA(),R:dB(),M:[dA(),dB(),cClean()]},{species:C,traits:bundle});
+    add(t("s_merge_t",{c:C}),t("s_merge_w"),{L:dA(),R:dB(),M:[dA(),dB(),cClean()]},{species:C,traits:bundle});
   }
   const bundleDev=(sp,l)=>dev(sp,{...bundle,...(sp===T?tGen:{})},3,3,l);
-  // 3. duplicate bundle
-  if(bTraits.length>=1){
-    add(`โคลนตัวรวม trait (${C}) ให้มีสำรอง`,
-      `หลอดซ้ายตัวรวม trait หลอดขวาและตรงกลางเป็น ${C} สะอาด แต่ละ trait มีแหล่งเดียวจึงติดได้แค่ราวเพดาน โอกาสได้ครบทุกตัวคือผลคูณ ทำซ้ำจนมีอย่างน้อย 2–3 ตัว`,
-      {L:bundleDev(C,C+" ตัวรวม trait"),R:cClean(),M:[cClean(),cClean(),cClean()]},{species:C,traits:bundle});
+  if(bTraits.length) add(t("s_dup_t",{c:C}),t("s_dup_w",{c:C}),{L:bundleDev(C,t("lbl_bundle",{x:C})),R:cClean(),M:[cClean(),cClean(),cClean()]},{species:C,traits:bundle});
+  if(C!==T&&bTraits.length){
+    add(t("s_xfer_t",{T:tLabel}),t("s_xfer_w",{T,v:w.variant?t("s_xfer_v",{T:tLabel}):""}),
+      {L:tClean(),R:bundleDev(C,t("lbl_bundle",{x:C})),M:[bundleDev(C,t("lbl_bundle",{x:C})+t("lbl_copy")),tClean(),tClean()]},{species:T,traits:{...bundle,...tGen}});
   }
-  // 4. transfer to target
-  if(C!==T && bTraits.length){
-    add(`ย้าย trait ทั้งชุดเข้า ${tLabel}`,
-      `${T} สะอาดในหลอดซ้าย ตัวรวม trait ในหลอดขวา ตรงกลางใส่สำเนาตัวรวม trait 1 ตัวเพื่อให้ทุก trait มี 2 แหล่ง และ ${T} อีก 2 ตัวเพื่อดันโอกาสสายพันธุ์${w.variant?` ใช้ร่าง ${tLabel} ทั้งหมดเพื่อให้ Variant มี 3 แหล่ง`:""}`,
-      {L:tClean(),R:bundleDev(C,C+" ตัวรวม trait"),M:[bundleDev(C,C+" ตัวรวม trait (สำเนา)"),tClean(),tClean()]},{species:T,traits:{...bundle,...tGen}});
-  }
-  if(!bTraits.length&&w.variant){
-    add(`หา ${tLabel} สะอาด 2 ตัวขึ้นไป`,`Variant เฉพาะตัวต้องมาจากตัวที่เป็นร่างนั้นอยู่แล้ว ใส่ร่างนั้นทั้งสองหลอด Variant จะมี 2 แหล่งและติด 100%`,
-      {L:tClean(),R:tClean(),M:[{kind:"empty"},{kind:"empty"},{kind:"empty"}]},{species:T,traits:tGen});
-  }
+  if(!bTraits.length&&w.variant) add(t("s_var_t",{T:tLabel}),t("s_var_w"),{L:tClean(),R:tClean(),M:[{kind:"empty"},{kind:"empty"},{kind:"empty"}]},{species:T,traits:tGen});
   const tFull=(sk,ac,l)=>dev(T,{...bundle,...tGen},sk,ac,l);
   const wantT={species:T,traits:{...bundle,...tGen}};
-  // 5. ratings: X/5 then 5/5
-  add(`ไล่ค่า Activity เป็น x/5`,
-    `ตัวเป้าหมายที่ติด trait ครบในหลอดซ้าย ตัว ${T} สะอาดที่ Activity 5 ในหลอดขวา ตรงกลางใส่สำเนาที่ติด trait ครบเพื่อล็อก trait 100% ถ้า Activity ไม่ขึ้น 5 ให้ทำซ้ำ`,
-    {L:tFull(3,3,tLabel+" trait ครบ"),R:tClean(3,5,T+" สะอาด x/5"),M:[tFull(3,3,tLabel+" trait ครบ (สำเนา)"),tClean(),{kind:"empty"}]},wantT,"rating");
-  add(`ไล่ค่าเป็น 5/5`,
-    `ตัวที่ติด trait ครบและ Activity 5 ในหลอดซ้าย ผสมกับ ${T} 5/5 สะอาดในหลอดขวา ตรงกลางเป็นสำเนาที่ติด trait ครบ ล็อก trait ให้ได้ 100% ก่อน แล้วค่อยไล่ค่า 5/5`,
-    {L:tFull(3,5,tLabel+" trait ครบ x/5"),R:tClean(5,5,T+" สะอาด 5/5"),M:[tFull(3,3,tLabel+" trait ครบ (สำเนา)"),{kind:"empty"},{kind:"empty"}]},wantT,"rating");
-  if(w.event){
-    add(`ผสมขั้นสุดท้ายเป็น ${w.event} ${T}`,
-      `ใช้ 5/5 + 5/5 เท่านั้น ตรงกลางใส่ตัวที่ติด trait ครบเพื่อล็อก 100% และใส่ ${w.event==="Starfall"?"Starfall Mutagen":w.event+" Mutagen / ไอเทมอีเวนต์"} ระวัง: ถึง trait จะล็อกแล้ว ค่า Skill ยังตกเป็น 4 หรือ 3 ได้ และพ่อแม่จะหมดสิทธิ์ผสมทันที`,
-      {L:tFull(5,5,tLabel+" trait ครบ 5/5"),R:tFull(5,5,tLabel+" 5/5"),M:[tFull(3,3,tLabel+" trait ครบ (สำเนา)"),{kind:"empty"},{kind:"empty"}]},wantT,"rating");
-  }
-  return {steps,warns,want:wantT};
+  const full=t("lbl_full",{x:tLabel});
+  add(t("s_x5_t"),t("s_x5_w",{T}),{L:tFull(3,3,full),R:tClean(3,5,t("lbl_clean",{x:T})+" x/5"),M:[tFull(3,3,full+t("lbl_copy")),tClean(),{kind:"empty"}]},wantT,"rating");
+  add(t("s_55_t"),t("s_55_w",{T}),{L:tFull(3,5,full+" x/5"),R:tClean(5,5,t("lbl_clean",{x:T})+" 5/5"),M:[tFull(3,3,full+t("lbl_copy")),{kind:"empty"},{kind:"empty"}]},wantT,"rating");
+  if(w.event) add(t("s_ev_t",{e:w.event,T}),t("s_ev_w",{m:w.event==="Starfall"?t("m_star"):t("m_other",{e:w.event})}),
+    {L:tFull(5,5,full+" 5/5"),R:tFull(5,5,tLabel+" 5/5"),M:[tFull(3,3,full+t("lbl_copy")),{kind:"empty"},{kind:"empty"}]},wantT,"rating");
+  return {steps,warns};
 }
+let LAST_PLAN=null;
 function renderPlan(){
-  const w=readWant(); const {steps,warns}=buildPlan(w);
-  const total=steps.length;
-  const VS=CFG.vslot; const listT=[w.variant?("Variant "+w.variant):"",(w.variant&&VS==="general")?"":w.general,(w.variant&&VS==="role")?"":w.role,w.mut,w.stat].filter(Boolean);
+  const w=readWant(); const plan=buildPlan(w); LAST_PLAN={w,plan}; const {steps,warns}=plan; const VS=CFG.vslot;
+  const listT=[w.variant?("Variant "+w.variant):"",(w.variant&&VS==="general")?"":w.general,(w.variant&&VS==="role")?"":w.role,w.mut,w.stat].filter(Boolean);
   $("pl-summary").innerHTML=`<h2 style="font-size:18px">${esc(w.species)} ${w.event?esc(w.event):""} 5/5</h2>
-   <p style="margin:6px 0 10px">Trait เป้าหมาย: ${listT.length?listT.map(t=>`<span class="badge b-good">${esc(t)}</span>`).join(" "):"ไม่ระบุ"}</p>
-   <div class="kpis"><span class="kpi">จำนวนขั้น: <b>${total}</b></span><span class="kpi">Carrier: <b>${esc(w.carrier)}</b></span><span class="kpi">เซิร์ฟ: <b>${SERVER==="scp"?"SCP":"ปกติ"}</b></span></div>
+   <p style="margin:6px 0 10px">${t("target_traits")} ${listT.length?listT.map(x=>`<span class="badge b-good">${esc(x)}</span>`).join(" "):t("not_set")}</p>
+   <div class="kpis"><span class="kpi">${t("k_steps")}: <b>${steps.length}</b></span><span class="kpi">${t("k_carrier")}: <b>${esc(w.carrier)}</b></span><span class="kpi">${t("k_server")}: <b>${SERVER==="scp"?"SCP":t("srv_norm_s")}</b></span></div>
    ${warns.map(x=>`<div class="warn" style="margin-top:10px">${esc(x)}</div>`).join("")}
-   <p class="note" style="margin:10px 0 0">แต่ละขั้นแสดงวิธีวางในเครื่องและโอกาสที่คำนวณได้ กด "เปิดในเครื่องจำลอง" เพื่อปรับตัวที่มีอยู่จริง เช่นตัวที่ติด trait ขยะ แล้วดูโอกาสใหม่</p>`;
+   <p class="note" style="margin:10px 0 0">${t("sum_note")}</p>`;
   $("pl-steps").innerHTML=steps.map((st,i)=>{
-    const top=st.res.species[0];
-    const kp=[`<span class="kpi">ได้ ${esc(st.want.species)}: <b>${pct((st.res.species.find(x=>x.s===st.want.species)||{p:0}).p)}</b></span>`,
-      st.p!=null?`<span class="kpi">ได้สายพันธุ์ + trait ครบ: <b>${pct(st.p)}</b></span>`:"",
-      st.extra==="rating"&&st.res.rating?`<span class="kpi">ได้ 5/5 (ประมาณ): <b>${pct(st.res.rating.p55)}</b></span>`:"",
-      st.p?`<span class="kpi">ลองเฉลี่ย ~<b>${Math.max(1,Math.round(100/st.p))}</b> ครั้ง</span>`:""].join("");
+    const sp=(st.res.species.find(x=>x.s===st.want.species)||{p:0}).p;
+    const kp=[`<span class="kpi">${esc(t("k_get",{s:st.want.species}))} <b>${pct(sp)}</b></span>`,
+      st.p!=null?`<span class="kpi">${t("k_all")} <b>${pct(st.p)}</b></span>`:"",
+      st.extra==="rating"&&st.res.rating?`<span class="kpi">${t("k_55")} <b>${pct(st.res.rating.p55)}</b></span>`:"",
+      st.p?`<span class="kpi">${t("k_tries",{n:Math.max(1,Math.round(100/st.p))})}</span>`:""].join("");
     return `<article class="step"><h3>${esc(st.title)}</h3><p class="why">${esc(st.why)}</p>${podHTML(st.setup)}<div class="kpis">${kp}</div>
-      <div><button class="btn ghost sm" type="button" data-load="${i}">เปิดในเครื่องจำลอง</button></div></article>`;
+      <div><button class="btn ghost sm" type="button" data-load="${i}">${t("open_sim")}</button></div></article>`;
   }).join("");
-  $("pl-steps").querySelectorAll("[data-load]").forEach(b=>b.onclick=()=>{ const st=steps[+b.dataset.load]; loadSim(st.setup); showTab("sim"); });
+  $("pl-steps").querySelectorAll("[data-load]").forEach(b=>b.onclick=()=>{ loadSim(steps[+b.dataset.load].setup); showTab("sim"); });
 }
 
 /* ================= SIMULATOR ================= */
-let SIM={L:null,R:null,M:[null,null,null]};
-let FOCUS="";
+let SIM={L:null,R:null,M:[null,null,null]}, FOCUS="";
 const SLOT_KEYS=["L","M0","M1","M2","R"];
 const getSlot=k=>k==="L"?SIM.L:k==="R"?SIM.R:SIM.M[+k[1]];
 const setSlot=(k,v)=>{ if(k==="L")SIM.L=v; else if(k==="R")SIM.R=v; else SIM.M[+k[1]]=v; };
-function clone(x){return x?JSON.parse(JSON.stringify(x)):null;}
-function loadSim(setup){ SIM={L:clone(setup.L),R:clone(setup.R),M:[0,1,2].map(i=>clone(setup.M[i])&&setup.M[i].kind!=="empty"?clone(setup.M[i]):null)}; FOCUS=""; renderSimSlots(); renderSim(); }
+const clone=x=>x?JSON.parse(JSON.stringify(x)):null;
+function loadSim(setup){ SIM={L:clone(setup.L),R:clone(setup.R),M:[0,1,2].map(i=>setup.M[i]&&setup.M[i].kind!=="empty"?clone(setup.M[i]):null)}; FOCUS=""; renderSimSlots(); renderSim(); }
 const DL_ID={general:"dl-general",role:"dl-role",mutation:"dl-mut",stat:"dl-stat"};
 function datalists(){
   const mk=(id,arr)=>`<datalist id="${id}">${arr.map(n=>`<option value="${esc(n)}"></option>`).join("")}</datalist>`;
-  const gen=[...Object.values(TR).filter(t=>t.slot==="general").map(t=>t.name),...Object.keys(VARIANT_OWNER)];
-  return mk("dl-species",Object.keys(SP))+mk("dl-general",gen)+mk("dl-role",[...Object.values(TR).filter(t=>t.slot==="role").map(t=>t.name),...Object.keys(VARIANT_OWNER)])+
-    mk("dl-mut",Object.values(TR).filter(t=>t.slot==="mutation").map(t=>t.name))+mk("dl-stat",Object.values(TR).filter(t=>t.slot==="stat").map(t=>t.name));
+  const vars=Object.keys(VARIANT_OWNER);
+  return mk("dl-species",Object.keys(SP))+mk("dl-general",[...Object.values(TR).filter(x=>x.slot==="general").map(x=>x.name),...vars])+
+    mk("dl-role",[...Object.values(TR).filter(x=>x.slot==="role").map(x=>x.name),...vars])+
+    mk("dl-mut",Object.values(TR).filter(x=>x.slot==="mutation").map(x=>x.name))+mk("dl-stat",Object.values(TR).filter(x=>x.slot==="stat").map(x=>x.name));
 }
 function renderSimSlots(){
-  const titles={L:"หลอดซ้าย (พ่อ/แม่)",R:"หลอดขวา (พ่อ/แม่)",M0:"วัสดุ 1",M1:"วัสดุ 2",M2:"วัสดุ 3"};
+  const titles={L:t("sl_L"),R:t("sl_R"),M0:t("sl_M",{n:1}),M1:t("sl_M",{n:2}),M2:t("sl_M",{n:3})};
   $("sim-slots").innerHTML=datalists()+SLOT_KEYS.map(k=>{
-    const it=getSlot(k); const parent=k==="L"||k==="R";
-    const kind=it?it.kind:"empty";
-    const kinds=parent?[["dev","Deviation"],["empty","ว่าง"]]:[["dev","Deviation"],["animal","สัตว์"],["furn","เฟอร์นิเจอร์"],["empty","ว่าง"]];
+    const it=getSlot(k); const parent=k==="L"||k==="R"; const kind=it?it.kind:"empty";
+    const kinds=parent?[["dev",t("k_dev")],["empty",t("k_empty")]]:[["dev",t("k_dev")],["animal",t("k_animal")],["furn",t("k_furn")],["empty",t("k_empty")]];
     let body="";
     if(kind==="dev"){
       const known=!!SP[it.species];
-      body=`<label for="${k}-sp">สายพันธุ์<input type="text" id="${k}-sp" list="dl-species" value="${esc(it.species)}" data-f="species"></label>
-      ${known?"":`<label for="${k}-cat">สาย<select id="${k}-cat" data-f="cat">${Object.entries(CAT_TH).map(([v,t])=>opt(v,t,v===it.cat)).join("")}</select></label>`}
-      ${SLOTS.map(s=>`<label for="${k}-${s}">${SLOT_TH[s]}<input type="text" id="${k}-${s}" list="${DL_ID[s]}" value="${esc(it.traits[s])}" data-f="t-${s}" placeholder="ไม่มี"></label>`).join("")}
-      <div class="row"><label for="${k}-sk">Skill<input type="number" min="1" max="5" id="${k}-sk" value="${it.sk}" data-f="sk"></label><label for="${k}-ac">Activity<input type="number" min="1" max="5" id="${k}-ac" value="${it.ac}" data-f="ac"></label></div>`;
+      body=`<label for="${k}-sp">${t("f_species")}<input type="text" id="${k}-sp" list="dl-species" value="${esc(it.species)}" data-f="species"></label>
+      ${known?"":`<label for="${k}-cat">${t("f_cat")}<select id="${k}-cat" data-f="cat">${["combat","territory","crafting"].map(v=>opt(v,CAT(v),v===it.cat)).join("")}</select></label>`}
+      ${SLOTS.map(s=>`<label for="${k}-${s}">${SLOT_T(s)}<input type="text" id="${k}-${s}" list="${DL_ID[s]}" value="${esc(it.traits[s])}" data-f="t-${s}" placeholder="${t("ph_none")}"></label>`).join("")}
+      <div class="row"><label for="${k}-sk">${t("sk")}<input type="number" min="1" max="5" id="${k}-sk" value="${it.sk}" data-f="sk"></label><label for="${k}-ac">${t("ac")}<input type="number" min="1" max="5" id="${k}-ac" value="${it.ac}" data-f="ac"></label></div>`;
     } else if(kind==="animal"||kind==="furn"){
-      body=`<label for="${k}-mat">ชิ้น<select id="${k}-mat" data-f="name">${Object.keys(MATERIALS[kind]).map(n=>opt(n,n+" → "+MATERIALS[kind][n],n===it.name)).join("")}</select></label>`;
+      body=`<label for="${k}-mat">${t("f_item")}<select id="${k}-mat" data-f="name">${Object.keys(MATERIALS[kind]).map(n=>opt(n,matL(kind,n)+" → "+matT(kind,n),n===it.name)).join("")}</select></label>`;
     }
     return `<div class="slot ${parent?"parent":""}" data-k="${k}"><h4>${titles[k]}</h4>
-      <label for="${k}-kind">ชนิด<select id="${k}-kind" data-f="kind">${kinds.map(([v,t])=>opt(v,t,v===kind)).join("")}</select></label>${body}</div>`;
+      <label for="${k}-kind">${t("kind_lbl")}<select id="${k}-kind" data-f="kind">${kinds.map(([v,x])=>opt(v,x,v===kind)).join("")}</select></label>${body}</div>`;
   }).join("");
   $("sim-slots").querySelectorAll(".slot").forEach(el=>{
     const k=el.dataset.k;
     el.querySelectorAll("[data-f]").forEach(inp=>{
       const ev=inp.tagName==="SELECT"?"change":"input";
       inp.addEventListener(ev,()=>{
-        const f=inp.dataset.f; let it=getSlot(k);
+        const f=inp.dataset.f; const it=getSlot(k);
         if(f==="kind"){ const v=inp.value; setSlot(k, v==="empty"?null: v==="dev"? dev(Object.keys(SP)[0]) : mat(v,Object.keys(MATERIALS[v])[0])); renderSimSlots(); renderSim(); return; }
         if(!it) return;
-        if(f==="species"){ it.species=inp.value.trim(); if(SP[it.species]) it.cat=SP[it.species].cat; if(ev==="input"&&(SP[it.species]||!inp.value)){ } }
+        if(f==="species"){ it.species=inp.value.trim(); if(SP[it.species]) it.cat=SP[it.species].cat; }
         else if(f==="cat") it.cat=inp.value;
         else if(f.startsWith("t-")) it.traits[f.slice(2)]=inp.value.trim();
         else if(f==="sk"||f==="ac") it[f]=Math.max(1,Math.min(5,+inp.value||1));
@@ -675,20 +828,19 @@ function renderSimSlots(){
   });
 }
 function renderSim(){
-  const res=compute(SIM);
-  let focusSel="";
+  const res=compute(SIM); let focusSel="";
   if(res.valid&&res.species.length>1){ if(!res.per[FOCUS]) FOCUS=res.species[0].s;
-    focusSel=`<label for="sim-focus" style="max-width:280px">ดู trait ของลูกที่เป็น<select id="sim-focus">${res.species.map(x=>opt(x.s,x.s,x.s===FOCUS)).join("")}</select></label>`; }
+    focusSel=`<label for="sim-focus" style="max-width:280px">${t("focus")}<select id="sim-focus">${res.species.map(x=>opt(x.s,x.s,x.s===FOCUS)).join("")}</select></label>`; }
   else if(res.valid) FOCUS=res.species[0].s;
-  $("sim-result").innerHTML=`<h2 style="font-size:18px">ผลที่คาดไว้</h2>${focusSel}${resultHTML(res,FOCUS)}`;
+  $("sim-result").innerHTML=`<h2 style="font-size:18px">${t("res_h")}</h2>${focusSel}${resultHTML(res,FOCUS)}`;
   const fs=$("sim-focus"); if(fs) fs.onchange=()=>{FOCUS=fs.value; renderSim();};
 }
 function simExample(){
-  // From the video: golden eel MA (L) + normal golden eel (R); center: lone wolf AP3+Feeling Blue, golden eel MA, maiden Cheer Up+AP3
-  loadSim({L:dev("Electric Eel",{[CFG.vslot]:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
-    R:dev("Electric Eel",{[CFG.vslot]:"Golden Lightning"},3,3,"Golden Eel"),
+  const V=CFG.vslot;
+  loadSim({L:dev("Electric Eel",{[V]:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
+    R:dev("Electric Eel",{[V]:"Golden Lightning"},3,3,"Golden Eel"),
     M:[dev("Lonewolf's Whisper",{general:"Feeling Blue 1",stat:"Attack Percentage 3"},3,3,"Lonewolf AP3 + Feeling Blue"),
-       dev("Electric Eel",{[CFG.vslot]:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
+       dev("Electric Eel",{[V]:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
        dev("Shattered Maiden",{general:"Cheer Up 3",stat:"Attack Percentage 3"},3,3,"Maiden Cheer Up + AP3")]});
 }
 
@@ -696,39 +848,99 @@ function simExample(){
 function renderRef(){
   const q=$("ref-q").value.trim().toLowerCase(), sl=$("ref-slot").value, kd=$("ref-kind").value;
   const rows=[];
-  Object.values(TR).forEach(t=>rows.push({n:t.name,slot:SLOT_TH[t.slot]+(t.cat?" · "+CAT_TH[t.cat]:""),sk:t.slot,e:t.effect,k:t.kind,src:t.slot==="mutation"?(MAT_FOR_TRAIT[t.name]?MAT_FOR_TRAIT[t.name].name:"ยังไม่ทราบ"):t.slot==="stat"?"เซิร์ฟ SCP":"Deviation ทั่วไป"}));
-  Object.entries(VARIANT_OWNER).forEach(([t,owners])=>rows.push({n:t,slot:"Variant (ช่องทั่วไป)",sk:"variant",e:VARIANT_EFFECT[t],k:"good",src:"ล็อกกับ "+owners.join(", ")}));
+  Object.values(TR).forEach(x=>rows.push({n:x.name,slot:SLOT_T(x.slot)+(x.cat?" · "+CAT(x.cat):""),sk:x.slot,e:tx(x.effect),k:x.kind,
+    src:x.slot==="mutation"?(MAT_FOR_TRAIT[x.name]?matL(MAT_FOR_TRAIT[x.name].kind,MAT_FOR_TRAIT[x.name].name):t("src_unknown")):x.slot==="stat"?t("src_scp"):t("src_any")}));
+  Object.entries(VARIANT_OWNER).forEach(([n,owners])=>rows.push({n,slot:t("variant_slot_lbl",{slot:SLOT_T(CFG.vslot)}),sk:"variant",e:tx(VARIANT_EFFECT[n]),k:"good",src:t("src_locked",{x:owners.join(", ")})}));
   const f=rows.filter(r=>(!sl||r.sk===sl)&&(!kd||r.k===kd)&&(!q||(r.n+" "+r.e+" "+r.src).toLowerCase().includes(q)));
-  const kb={good:'<span class="badge b-good">ดี</span>',mixed:'<span class="badge b-mixed">มีข้อแลก</span>',bad:'<span class="badge b-bad">ควรกำจัด</span>'};
-  $("ref-table").innerHTML=`<thead><tr><th>Trait</th><th>ช่อง</th><th>ผล</th><th>ประเภท</th><th>ได้จาก</th></tr></thead><tbody>`+
+  const kb={good:`<span class="badge b-good">${t("b_good")}</span>`,mixed:`<span class="badge b-mixed">${t("b_mixed")}</span>`,bad:`<span class="badge b-bad">${t("b_bad")}</span>`};
+  $("ref-table").innerHTML=`<thead><tr><th>${t("th_trait")}</th><th>${t("th_slot")}</th><th>${t("th_eff")}</th><th>${t("th_kind")}</th><th>${t("th_src")}</th></tr></thead><tbody>`+
     f.map(r=>`<tr><td><b>${esc(r.n)}</b></td><td>${esc(r.slot)}</td><td>${esc(r.e)}</td><td>${kb[r.k]}</td><td>${esc(r.src)}</td></tr>`).join("")+
-    (f.length?"":`<tr><td colspan="5" class="note">ไม่พบ trait ที่ตรงกับคำค้น</td></tr>`)+"</tbody>";
+    (f.length?"":`<tr><td colspan="5" class="note">${t("ref_empty")}</td></tr>`)+"</tbody>";
 }
+
+/* ================= SAVE / OPEN ================= */
+function planData(){
+  const w=readWant();
+  const steps=(LAST_PLAN?LAST_PLAN.plan.steps:[]).map((s,i)=>({step:i+1,title:s.title,how:s.why,
+    odds:{species:pct((s.res.species.find(x=>x.s===s.want.species)||{p:0}).p),all:s.p!=null?pct(s.p):null}}));
+  return {app:"once-human-fusion-planner",version:1,savedAt:new Date().toISOString(),lang:LANG,server:SERVER,target:w,settings:CFG,simulator:SIM,readable_steps:steps};
+}
+const fileName=()=>`fusion-plan-${$("pl-species").value.replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()}-${new Date().toISOString().slice(0,10)}.json`;
+async function savePlan(){
+  const data=JSON.stringify(planData(),null,2), fn=fileName();
+  try{
+    if(window.claude&&typeof window.claude.use==="function"){
+      const d=await window.claude.use("downloads");
+      if(d){ await d.save({filename:fn,data}); toast(t("saved",{f:fn})); return; }
+      throw new Error("no downloads");
+    }
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([data],{type:"application/json"})); a.download=fn;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); toast(t("saved",{f:fn}));
+  }catch(e){ openModal("save",data); }
+}
+function applyPlan(obj){
+  if(!obj||obj.app!=="once-human-fusion-planner"||!obj.target||!SP[obj.target.species]) throw new Error("bad");
+  if(obj.settings) { CFG={...DEF,...obj.settings}; saveCfg(); renderCfg(); }
+  setServer(obj.server==="scp"?"scp":"normal");
+  $("pl-species").value=obj.target.species; syncPlannerDeps(obj.target);
+  ["general","role","mut","stat"].forEach(k=>{ const el=$("pl-"+k); if(obj.target[k]!==undefined&&[...el.options].some(o=>o.value===obj.target[k])) el.value=obj.target[k]; });
+  renderPlan();
+  if(obj.simulator) loadSim({L:obj.simulator.L,R:obj.simulator.R,M:obj.simulator.M||[null,null,null]});
+  toast(t("loaded"));
+}
+function loadText(txt){ try{ applyPlan(JSON.parse(txt)); return true; }catch(e){ toast(t("load_err"),true); return false; } }
+let MODE="";
+function openModal(mode,text){
+  MODE=mode; $("modal-h").textContent=mode==="save"?t("m_save_h"):t("m_paste_h");
+  $("modal-note").textContent=mode==="save"?t("m_save_note"):t("m_paste_note");
+  $("modal-text").value=text||""; $("modal-text").readOnly=mode==="save";
+  $("modal-load").style.display=mode==="save"?"none":""; $("modal-copy").style.display=mode==="save"?"":"none";
+  $("modal").classList.add("on"); $("modal-text").focus(); if(mode==="save") $("modal-text").select();
+}
+const closeModal=()=>$("modal").classList.remove("on");
 
 /* ================= CONFIG UI ================= */
 function renderCfg(){ ["base","step","cap","up","down","vslot"].forEach(k=>$("cfg-"+k).value=CFG[k]); }
-$("cfg-vslot").addEventListener("change",e=>{CFG.vslot=e.target.value; saveCfg(); renderPlan(); simExample();});
-["base","step","cap","up","down"].forEach(k=>$("cfg-"+k).addEventListener("input",e=>{const v=parseFloat(e.target.value); if(!isNaN(v)){CFG[k]=v; saveCfg(); renderPlan(); renderSim();}}));
-$("cfg-reset").onclick=()=>{CFG={...DEF}; saveCfg(); renderCfg(); renderPlan(); renderSim();};
 
-/* ================= TABS & WIRING ================= */
-function showTab(p){ document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.p===p?"true":"false"));
+/* ================= LANGUAGE ================= */
+function applyStatic(){
+  document.documentElement.lang=LANG==="zh"?"zh-Hans":LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>el.innerHTML=t(el.dataset.i18nHtml));
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+  $("lang").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===LANG?"true":"false"));
+}
+function setLang(l){
+  LANG=l; try{localStorage.setItem("fp-lang",l);}catch(e){}
+  const keep=readWant(); applyStatic(); fillPlannerSelects(keep); renderPlan(); renderSimSlots(); renderSim(); renderRef();
+}
+
+/* ================= WIRING ================= */
+function showTab(p){ document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x.dataset.p===p?"true":"false"));
   document.querySelectorAll(".panel").forEach(x=>x.classList.toggle("on",x.id==="p-"+p)); }
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showTab(t.dataset.p));
+document.querySelectorAll(".tab").forEach(x=>x.onclick=()=>showTab(x.dataset.p));
+$("lang").querySelectorAll("button").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
 $("pl-species").addEventListener("change",()=>{syncPlannerDeps({general:$("pl-general").value,mut:$("pl-mut").value,stat:$("pl-stat").value}); renderPlan();});
 ["pl-variant","pl-event","pl-general","pl-role","pl-mut","pl-stat","pl-carrier"].forEach(id=>$(id).addEventListener("change",renderPlan));
-$("pl-server").querySelectorAll("button").forEach(b=>b.onclick=()=>{ SERVER=b.dataset.v;
-  $("pl-server").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
-  const keep=readWant(); keep.carrier=""; syncPlannerDeps(keep); renderPlan(); });
+$("pl-server").querySelectorAll("button").forEach(b=>b.onclick=()=>{ setServer(b.dataset.v); const keep=readWant(); keep.carrier=""; syncPlannerDeps(keep); renderPlan(); });
+$("pl-preset").onclick=()=>{ setServer("scp"); CFG.vslot="role"; saveCfg(); renderCfg(); $("pl-species").value="Butterfly's Emissary";
+  syncPlannerDeps({variant:"Praise the Moon – Starry Night",general:"Power Rewind 2",role:"",mut:"Moonlight Assault",stat:"Crit DMG 3",carrier:"Polar Jelly",event:""}); renderPlan(); };
 $("ref-q").addEventListener("input",renderRef); $("ref-slot").addEventListener("change",renderRef); $("ref-kind").addEventListener("change",renderRef);
-$("pl-preset").onclick=()=>{ SERVER="scp"; $("pl-server").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v==="scp"?"true":"false"));
-  CFG.vslot="role"; saveCfg(); renderCfg(); $("pl-species").value="Butterfly's Emissary";
-  syncPlannerDeps({variant:"Praise the Moon – Starry Night",general:"Power Rewind 2",mut:"Moonlight Assault",stat:"Crit DMG 3",carrier:"Polar Jelly"});
-  $("pl-role").value=""; $("pl-event").value=""; renderPlan(); };
 $("sim-clear").onclick=()=>loadSim({L:null,R:null,M:[null,null,null]});
 $("sim-example").onclick=simExample;
+["base","step","cap","up","down"].forEach(k=>$("cfg-"+k).addEventListener("input",e=>{const v=parseFloat(e.target.value); if(!isNaN(v)){CFG[k]=v; saveCfg(); renderPlan(); renderSim();}}));
+$("cfg-vslot").addEventListener("change",e=>{CFG.vslot=e.target.value; saveCfg(); renderPlan(); simExample(); renderRef();});
+$("cfg-reset").onclick=()=>{CFG={...DEF}; saveCfg(); renderCfg(); renderPlan(); renderSim(); renderRef();};
+$("btn-save").onclick=savePlan;
+$("btn-paste").onclick=()=>openModal("paste","");
+$("file-in").addEventListener("change",async e=>{ const f=e.target.files[0]; if(!f) return; loadText(await f.text()); e.target.value=""; });
+$("modal-close").onclick=closeModal;
+$("modal").addEventListener("click",e=>{ if(e.target===$("modal")) closeModal(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeModal(); });
+$("modal-load").onclick=()=>{ if(loadText($("modal-text").value)) closeModal(); };
+$("modal-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("modal-text").value); toast(t("copied")); }catch(e){ $("modal-text").select(); } };
 
-fillPlannerSelects(); renderPlan(); simExample(); renderRef(); renderCfg();
+applyStatic(); fillPlannerSelects(); renderCfg(); renderPlan(); simExample(); renderRef();
 </script>
 </body>
 </html>

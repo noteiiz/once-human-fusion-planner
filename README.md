@@ -1,37 +1,36 @@
 # Once Human — Fusion Pod Planner
 
-หน้าเว็บช่วยวางแผนการผสม Deviation ใน Fusion Pod ของเกม Once Human
+A single-page tool for planning Deviation fusions in Once Human's Fusion Pod. Pick a Deviation, variant and traits, and it lays out each fusion step (collect traits on a carrier → combine → clone → move into the target → raise to x/5 → 5/5) with the odds for each step.
 
-เลือก Deviation, Variant และ Trait ที่ต้องการ แล้วหน้าเว็บจะวางลำดับการผสมให้ทีละขั้น (เก็บ trait ลงตัวพา → รวม trait → โคลน → ย้ายเข้าเป้าหมาย → ไล่ค่า x/5 → 5/5) พร้อมคำนวณโอกาสของแต่ละขั้น
+หน้าเว็บช่วยวางแผนการผสม Deviation ใน Fusion Pod ของเกม Once Human · 七日世界 Fusion Pod 融合规划工具
 
-## วิธีใช้
+## Use
 
-เปิดไฟล์ `index.html` ในเบราว์เซอร์ได้เลย ไม่ต้องติดตั้งอะไร หรือเปิดผ่าน GitHub Pages
+Open `index.html` in a browser. Nothing to install. Languages: English (default), ไทย, 中文.
 
-มี 4 แท็บ:
+Tabs:
 
-- **วางแผนการผสม** — เลือกเป้าหมาย แล้วดูขั้นตอนพร้อมวิธีจัดวางในเครื่องและโอกาสสำเร็จ
-- **เครื่องจำลอง Fusion Pod** — จัดหลอดซ้าย/ขวาและวัสดุ 3 ช่องเอง แล้วดูโอกาสของสายพันธุ์ trait และค่า Skill/Activity
-- **รายการ Trait** — ค้นหาและกรอง trait ตามช่องและประเภท
-- **ตั้งค่าและกฎ** — ปรับตัวเลขที่ใช้คำนวณ
+- **Fusion plan** — choose a target and get step-by-step pod layouts with odds.
+- **Fusion Pod simulator** — place your own parents and up to 3 materials and see species, trait and Skill/Activity odds.
+- **Trait list** — search and filter every known trait.
+- **Settings & rules** — adjust the numbers used, see the rules and sources.
 
-## กฎที่ใช้คำนวณ
+### Save and share a plan
 
-1. สายพันธุ์ลูกได้เฉพาะสายพันธุ์ของพ่อหรือแม่ โอกาส = จำนวนตัวสายพันธุ์นั้น (พ่อแม่ + วัสดุ) ÷ จำนวนตัวที่เป็นสายพันธุ์ของพ่อแม่ทั้งหมด
-2. Trait มี 4 ช่อง: ทั่วไป, ประจำสาย, Deviated, Stat (SCP) ลูกได้ช่องละไม่เกิน 1
-3. Variant เฉพาะตัว (เช่น Starry Night ของ Butterfly, Golden ของ Eel) ใช้ช่องประจำสายเป็นค่าเริ่มต้น จึงล็อกได้สูงสุด 4 trait (ทั่วไป + Variant + Deviated + Stat SCP) เปลี่ยนเป็นช่องทั่วไปได้ในแท็บตั้งค่า ถ้าลูกไม่ใช่สายพันธุ์นั้นช่องจะว่าง
-4. Trait ประจำสายข้ามสายไม่ได้
-5. หลาย trait แย่งช่อง: โอกาส = จำนวนแหล่งของ trait ÷ จำนวนแหล่งทั้งหมดในช่อง
-6. Trait เดียวในช่อง: 2 แหล่งขึ้นไป = 100% แหล่งเดียว = 50% + 10% ต่อ Deviation ที่ไม่มี trait ในช่องนั้น (สูงสุด 80%)
-7. ค่า Skill/Activity สุ่มจากพ่อหรือแม่ แล้วมีโอกาส +1 (~9.8%) หรือ −1 (~2%)
+- **Save plan to file** downloads a `.json` file with the target, settings and simulator layout, plus the steps in readable form.
+- **Open plan file** loads that file back. Send the file to a friend and they can open it the same way.
+- If a viewer blocks downloads, the page shows the plan code instead; copy it, and open it later with **Paste plan code**.
 
-ตัวเลขเป็นค่าประมาณจากผู้เล่น ยังไม่ยืนยันจากผู้พัฒนา ให้เทียบกับหน้า preview ในเกมทุกครั้ง
+## Rules used
 
-## ที่มา
+1. Offspring species can only be a parent's species. Odds = Deviations of that species (parents + materials) ÷ all Deviations of the parents' species.
+2. Four trait slots: General, Type (Combat/Territory/Crafting), Deviated, Stat (SCP). At most one trait per slot.
+3. Unique variants use the Type slot by default (a real Deviation carries a variant, Power Rewind 2, Moonlight Assault and Crit DMG 3 together). This can be switched to the General slot in Settings.
+4. Type traits never cross types.
+5. Competing traits: odds = sources of that trait ÷ all sources in the slot.
+6. One trait in a slot: 2+ sources = 100%; one source = 50% + 10% per Deviation without a trait in that slot, up to 80%.
+7. Skill/Activity come from either parent, with a small chance of +1 (~9.8%) or −1 (~2%).
 
-- [THE ULTIMATE 100% TRAIT FUSION GUIDE! PERFECT 5/5 — GTJanne](https://www.youtube.com/watch?v=lyNM0s2CUIY)
-- [Deviations and Fusion: An Overview — 足長よしお (note.com)](https://note.com/elias04201/n/n07ff10ec45cc?hl=en)
-- [Once Human Deviant Traits — Gaming with Daopa](https://gamingwithdaopa.ellatha.com/once-human/deviant-traits/)
-- [Fusion Tracker](https://fusiontracker.io/)
+These numbers are community estimates, not confirmed by the developer. Check the in-game preview before fusing. Sources are listed in the Settings tab.
 
-โปรเจกต์แฟนเมด ไม่เกี่ยวข้องกับ Starry Studio
+Fan-made project, not affiliated with Starry Studio.
