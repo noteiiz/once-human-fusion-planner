@@ -1,5 +1,7 @@
 # Once Human — Fusion Pod Planner
 
+### ▶ [Open the planner / เปิดใช้งาน / 打开工具](https://noteiiz.github.io/once-human-fusion-planner/)
+
 A single-page tool for planning Deviation fusions in Once Human's Fusion Pod. Pick a Deviation, variant and traits, and it lays out each fusion step (collect traits on a carrier → combine → clone → move into the target → raise to x/5 → 5/5) with the odds for each step.
 
 หน้าเว็บช่วยวางแผนการผสม Deviation ใน Fusion Pod ของเกม Once Human · 七日世界 Fusion Pod 融合规划工具
