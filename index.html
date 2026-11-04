@@ -137,6 +137,7 @@ details summary{cursor:pointer; font:600 14px var(--display)}
     <div class="grid2">
       <div class="card form">
         <h2 style="font-size:18px">เป้าหมาย</h2>
+        <button class="btn ghost sm" id="pl-preset" type="button" style="align-self:flex-start">ตั้งตามตัวอย่าง: Butterfly Starry Night 4 trait</button>
         <label for="pl-species">Deviation ที่ต้องการ
           <select id="pl-species"></select>
         </label>
@@ -241,6 +242,9 @@ details summary{cursor:pointer; font:600 14px var(--display)}
           <label for="cfg-up">โอกาสค่าเพิ่ม +1 ต่อค่า (%)<input type="number" id="cfg-up" min="0" max="100" step="0.1"></label>
           <label for="cfg-down">โอกาสค่าลด −1 ต่อค่า (%)<input type="number" id="cfg-down" min="0" max="100" step="0.1"></label>
         </div>
+        <label for="cfg-vslot">Variant เฉพาะตัวใช้ช่องไหน
+          <select id="cfg-vslot"><option value="role">ช่องประจำสาย (ตามตัวจริงในภาพ: Variant + Power Rewind 2 อยู่ด้วยกันได้)</option><option value="general">ช่องทั่วไป (ตามคำพูดในคลิป GTJanne)</option></select>
+        </label>
         <button class="btn ghost sm" id="cfg-reset" type="button" style="align-self:flex-start">คืนค่าเริ่มต้น</button>
       </div>
       <div class="card">
@@ -248,7 +252,7 @@ details summary{cursor:pointer; font:600 14px var(--display)}
         <ol style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px">
           <li><b>สายพันธุ์ลูก:</b> ได้เฉพาะสายพันธุ์ของพ่อหรือแม่ โอกาส = จำนวนตัวสายพันธุ์นั้น (พ่อแม่ + วัสดุ) ÷ จำนวนตัวที่เป็นสายพันธุ์ของพ่อแม่ทั้งหมด วัสดุสายพันธุ์อื่น สัตว์ และเฟอร์นิเจอร์ไม่นับ</li>
           <li><b>ช่อง trait 4 ช่อง:</b> ทั่วไป, ประจำสาย, Deviated, Stat (SCP) ลูกได้ช่องละไม่เกิน 1</li>
-          <li><b>Variant เฉพาะตัว</b> (เช่น Golden ของ Eel, Radiant ของ Polar Jelly) แย่งช่องทั่วไป ถ้าลูกไม่ใช่สายพันธุ์นั้น ช่องทั่วไปจะว่าง จึงใช้ "ล้าง" trait ขยะได้</li>
+          <li><b>Variant เฉพาะตัว</b> (เช่น Starry Night ของ Butterfly, Golden ของ Eel) ใช้ช่องที่เลือกไว้ด้านซ้าย ค่าเริ่มต้นคือช่องประจำสาย เพราะมีตัวจริงที่มี Variant + Power Rewind 2 + Moonlight Assault + Crit DMG 3 พร้อมกัน ถ้าลูกไม่ใช่สายพันธุ์นั้น ช่องนั้นจะว่าง จึงใช้ "ล้าง" trait ขยะได้</li>
           <li><b>Trait ประจำสาย</b> ข้ามสายไม่ได้ Combat ไม่ไปลง Territory/Crafting</li>
           <li><b>หลาย trait แย่งช่อง:</b> โอกาส = จำนวนแหล่งของ trait นั้น ÷ จำนวนแหล่งทั้งหมดในช่อง</li>
           <li><b>trait เดียวในช่อง:</b> มี 2 แหล่งขึ้นไป = 100% มีแหล่งเดียว = พื้นฐาน + ค่าเพิ่มต่อ Deviation ที่ไม่มี trait ในช่องนั้น (ไม่เกินเพดาน)</li>
@@ -375,6 +379,7 @@ const TRAITS_RAW=[
  ["Capybara trait","mutation","","ผู้เล่นฟื้น Sanity 10% เมื่อกลับฐาน (ชื่อจริงยังไม่ยืนยัน)","good"],
  ...["Brute Force Rules","Clean and Hygienic","Extra Load","Feline Creatures","Herbivore","Master of Temperatures","Mind Massage","Music Resonance","Neon Flicker","Polar Beast","Pollution Adaptation","Precision Moment","Top Grunt","Warm Flame"].map(n=>[n,"mutation","","ยังไม่มีข้อมูลผล ดูในหน้า preview","good"]),
  // stat (SCP)
+ ["Crit DMG 1","stat","","Crit DMG เพิ่มเมื่อเรียกใช้ใน SCP","good"],["Crit DMG 2","stat","","Crit DMG เพิ่มเมื่อเรียกใช้ใน SCP","good"],["Crit DMG 3","stat","","Crit DMG +64% เมื่อเรียกใช้ใน SCP","good"],
  ["Attack Percentage 1","stat","","ค่าโจมตี % (SCP เท่านั้น)","good"],["Attack Percentage 2","stat","","ค่าโจมตี % (SCP เท่านั้น)","good"],["Attack Percentage 3","stat","","ค่าโจมตี % (SCP เท่านั้น)","good"]
 ];
 const TR={}; TRAITS_RAW.forEach(([n,s,c,e,k])=>TR[n]={name:n,slot:s,cat:c,effect:e,kind:k});
@@ -387,7 +392,7 @@ const MATERIALS={
 const MAT_FOR_TRAIT={}; for(const k of ["animal","furn"]) for(const [n,t] of Object.entries(MATERIALS[k])) if(!MAT_FOR_TRAIT[t]) MAT_FOR_TRAIT[t]={kind:k,name:n};
 
 /* ================= CONFIG ================= */
-const DEF={base:50,step:10,cap:80,up:9.8,down:2};
+const DEF={base:50,step:10,cap:80,up:9.8,down:2,vslot:"role"};
 let CFG={...DEF};
 try{const s=JSON.parse(localStorage.getItem("fp-cfg")||"null"); if(s) CFG={...DEF,...s};}catch(e){}
 function saveCfg(){try{localStorage.setItem("fp-cfg",JSON.stringify(CFG));}catch(e){}}
@@ -523,13 +528,14 @@ function buildPlan(w){
   const T=w.species, cat=SP[T].cat, C=w.carrier;
   const steps=[]; const warns=[];
   const genWant=w.variant||w.general;
-  if(w.variant&&w.general) warns.push(`Variant "${w.variant}" ใช้ช่อง trait ทั่วไป จึงมี ${w.general} พร้อมกันไม่ได้ หน้านี้จะวางแผนให้ได้ Variant และตัด ${w.general} ออก`);
+  const VS=CFG.vslot; const clash=w.variant&&(VS==="general"?w.general:w.role);
+  if(clash) warns.push(`ตามกฎที่ตั้งไว้ Variant "${w.variant}" ใช้ช่อง${SLOT_TH[VS]} จึงมี ${clash} พร้อมกันไม่ได้ หน้านี้จะวางแผนให้ได้ Variant และตัด ${clash} ออก (เปลี่ยนกฎได้ในแท็บตั้งค่า)`);
   if(w.mut&&!MAT_FOR_TRAIT[w.mut]) warns.push(`ยังไม่รู้ว่าสัตว์หรือเฟอร์นิเจอร์ชิ้นไหนให้ ${w.mut} ให้ลองใส่วัสดุทีละชิ้นในหน้า preview ของเกม ขั้นที่ใช้ trait นี้จะถือว่าคุณมี Deviation ที่มี trait นี้อยู่แล้ว 1 ตัว`);
   if(w.event==="Starfall"&&SERVER!=="scp") warns.push("Starfall Mutagen ผสมได้เฉพาะเซิร์ฟ SCP ช่วงอีเวนต์ ในเซิร์ฟปกติต้องซื้อหรือแลกจากตลาด");
   // traits that go through the carrier bundle (variant handled separately on T)
-  const bundle={general:w.variant?"":w.general,role:w.role,mutation:w.mut,stat:w.stat};
+  const bundle={general:(w.variant&&VS==="general")?"":w.general,role:(w.variant&&VS==="role")?"":w.role,mutation:w.mut,stat:w.stat};
   const bTraits=Object.entries(bundle).filter(([,v])=>v);
-  const tGen=w.variant?{general:w.variant}:{};
+  const tGen=w.variant?{[VS]:w.variant}:{};
   const tLabel=w.variant?T+" ("+SP[T].variants.find(v=>v.t===w.variant).vn+")":T;
   const cClean=()=>dev(C,{},3,3,C+" สะอาด");
   const tClean=(sk=3,ac=3,l)=>dev(T,{...tGen},sk,ac,l||tLabel+" สะอาด");
@@ -597,7 +603,7 @@ function buildPlan(w){
 function renderPlan(){
   const w=readWant(); const {steps,warns}=buildPlan(w);
   const total=steps.length;
-  const listT=[w.variant?("Variant "+w.variant):"",w.variant?"":w.general,w.role,w.mut,w.stat].filter(Boolean);
+  const VS=CFG.vslot; const listT=[w.variant?("Variant "+w.variant):"",(w.variant&&VS==="general")?"":w.general,(w.variant&&VS==="role")?"":w.role,w.mut,w.stat].filter(Boolean);
   $("pl-summary").innerHTML=`<h2 style="font-size:18px">${esc(w.species)} ${w.event?esc(w.event):""} 5/5</h2>
    <p style="margin:6px 0 10px">Trait เป้าหมาย: ${listT.length?listT.map(t=>`<span class="badge b-good">${esc(t)}</span>`).join(" "):"ไม่ระบุ"}</p>
    <div class="kpis"><span class="kpi">จำนวนขั้น: <b>${total}</b></span><span class="kpi">Carrier: <b>${esc(w.carrier)}</b></span><span class="kpi">เซิร์ฟ: <b>${SERVER==="scp"?"SCP":"ปกติ"}</b></span></div>
@@ -627,7 +633,7 @@ const DL_ID={general:"dl-general",role:"dl-role",mutation:"dl-mut",stat:"dl-stat
 function datalists(){
   const mk=(id,arr)=>`<datalist id="${id}">${arr.map(n=>`<option value="${esc(n)}"></option>`).join("")}</datalist>`;
   const gen=[...Object.values(TR).filter(t=>t.slot==="general").map(t=>t.name),...Object.keys(VARIANT_OWNER)];
-  return mk("dl-species",Object.keys(SP))+mk("dl-general",gen)+mk("dl-role",Object.values(TR).filter(t=>t.slot==="role").map(t=>t.name))+
+  return mk("dl-species",Object.keys(SP))+mk("dl-general",gen)+mk("dl-role",[...Object.values(TR).filter(t=>t.slot==="role").map(t=>t.name),...Object.keys(VARIANT_OWNER)])+
     mk("dl-mut",Object.values(TR).filter(t=>t.slot==="mutation").map(t=>t.name))+mk("dl-stat",Object.values(TR).filter(t=>t.slot==="stat").map(t=>t.name));
 }
 function renderSimSlots(){
@@ -679,10 +685,10 @@ function renderSim(){
 }
 function simExample(){
   // From the video: golden eel MA (L) + normal golden eel (R); center: lone wolf AP3+Feeling Blue, golden eel MA, maiden Cheer Up+AP3
-  loadSim({L:dev("Electric Eel",{general:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
-    R:dev("Electric Eel",{general:"Golden Lightning"},3,3,"Golden Eel"),
+  loadSim({L:dev("Electric Eel",{[CFG.vslot]:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
+    R:dev("Electric Eel",{[CFG.vslot]:"Golden Lightning"},3,3,"Golden Eel"),
     M:[dev("Lonewolf's Whisper",{general:"Feeling Blue 1",stat:"Attack Percentage 3"},3,3,"Lonewolf AP3 + Feeling Blue"),
-       dev("Electric Eel",{general:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
+       dev("Electric Eel",{[CFG.vslot]:"Golden Lightning",mutation:"Moonlight Assault"},3,3,"Golden Eel + Moonlight Assault"),
        dev("Shattered Maiden",{general:"Cheer Up 3",stat:"Attack Percentage 3"},3,3,"Maiden Cheer Up + AP3")]});
 }
 
@@ -700,7 +706,8 @@ function renderRef(){
 }
 
 /* ================= CONFIG UI ================= */
-function renderCfg(){ ["base","step","cap","up","down"].forEach(k=>$("cfg-"+k).value=CFG[k]); }
+function renderCfg(){ ["base","step","cap","up","down","vslot"].forEach(k=>$("cfg-"+k).value=CFG[k]); }
+$("cfg-vslot").addEventListener("change",e=>{CFG.vslot=e.target.value; saveCfg(); renderPlan(); simExample();});
 ["base","step","cap","up","down"].forEach(k=>$("cfg-"+k).addEventListener("input",e=>{const v=parseFloat(e.target.value); if(!isNaN(v)){CFG[k]=v; saveCfg(); renderPlan(); renderSim();}}));
 $("cfg-reset").onclick=()=>{CFG={...DEF}; saveCfg(); renderCfg(); renderPlan(); renderSim();};
 
@@ -714,6 +721,10 @@ $("pl-server").querySelectorAll("button").forEach(b=>b.onclick=()=>{ SERVER=b.da
   $("pl-server").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
   const keep=readWant(); keep.carrier=""; syncPlannerDeps(keep); renderPlan(); });
 $("ref-q").addEventListener("input",renderRef); $("ref-slot").addEventListener("change",renderRef); $("ref-kind").addEventListener("change",renderRef);
+$("pl-preset").onclick=()=>{ SERVER="scp"; $("pl-server").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v==="scp"?"true":"false"));
+  CFG.vslot="role"; saveCfg(); renderCfg(); $("pl-species").value="Butterfly's Emissary";
+  syncPlannerDeps({variant:"Praise the Moon – Starry Night",general:"Power Rewind 2",mut:"Moonlight Assault",stat:"Crit DMG 3",carrier:"Polar Jelly"});
+  $("pl-role").value=""; $("pl-event").value=""; renderPlan(); };
 $("sim-clear").onclick=()=>loadSim({L:null,R:null,M:[null,null,null]});
 $("sim-example").onclick=simExample;
 
